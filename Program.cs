@@ -2,13 +2,21 @@ using Npgsql.EntityFrameworkCore.PostgreSQL;
 using GestorAtividades.Data;
 using Microsoft.EntityFrameworkCore;
 using GestorAtividades.Service;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<AtividadeService>();
 
 
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddFluentValidation(fv =>
+{
+    fv.RegisterValidatorsFromAssemblyContaining<Program>();
+});
+
 
 // Banco de dados MySQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>

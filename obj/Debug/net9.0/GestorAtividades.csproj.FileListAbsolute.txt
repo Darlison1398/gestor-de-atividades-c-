@@ -188,3 +188,8 @@
 /home/darlison-silva/Documentos/mvc/GestorAtividades/bin/Debug/net9.0/Npgsql.dll
 /home/darlison-silva/Documentos/mvc/GestorAtividades/bin/Debug/net9.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
 /home/darlison-silva/Documentos/mvc/GestorAtividades/bin/Debug/net9.0/BCrypt.Net-Next.dll
+/home/darlison-silva/Documentos/mvc/GestorAtividades/obj/Debug/net9.0/GestorAtividades.sourcelink.json
+/home/darlison-silva/Documentos/mvc/GestorAtividades/bin/Debug/net9.0/FluentValidation.dll
+/home/darlison-silva/Documentos/mvc/GestorAtividades/bin/Debug/net9.0/FluentValidation.AspNetCore.dll
+/home/darlison-silva/Documentos/mvc/GestorAtividades/bin/Debug/net9.0/FluentValidation.DependencyInjectionExtensions.dll
+/home/darlison-silva/Documentos/mvc/GestorAtividades/obj/Debug/net9.0/GestorAtividades.MvcApplicationPartsAssemblyInfo.cs

@@ -21,6 +21,18 @@ namespace GestorAtividades.Data
             modelBuilder.Entity<Atividade>()
                 .Property(a => a.Status)
                 .HasConversion<string>();
+
+            modelBuilder.Entity<Atividade>()
+                .Property(a => a.DataRegistro)
+                .HasColumnType("timestamp with time zone");
+
+            modelBuilder.Entity<Atividade>()
+                .Property(a => a.DataInicio)
+                .HasColumnType("timestamp with time zone");
+
+            modelBuilder.Entity<Atividade>()
+                .Property(a => a.DataConclusao)
+                .HasColumnType("timestamp with time zone");
         }
 
 

@@ -1,11 +1,43 @@
+@model GestorAtividades.Models.Atividade
+
 @{
     ViewData["Title"] = "Criar atividade";
 }
 
-<div class="text-center">
+<h3>Criar uma nova atividade</h3>
 
-    <div> 
-    <h3>Aqui vc poderá registrar suas ativiades</h3>
-        <a href="@Url.Action("Create")" class="btn btn-primary">Criar atividade</a>
+<form method="post" asp-action="CriarAtividade" asp-controller="Atividade">
+
+    <div class="mb-3 mt-3">
+        <label class="form-label" asp-for="Titulo">Título:</label>
+        <input asp-for="Titulo" class="form-control" type="text" required />
+        <span asp-validation-for="Titulo" class="text-danger"></span>
     </div>
-</div>
+
+    <div class="mb-3 mt-3">
+        <label class="form-label" asp-for="DataInicio">Data Início:</label>
+        <input asp-for="DataInicio" class="form-control" type="date" required />
+        <span asp-validation-for="DataInicio" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3 mt-3">
+        <label asp-for="DataConclusao" class="form-label">Data Conclusão:</label>
+        <input asp-for="DataConclusao" class="form-control" type="date" required />
+        <span asp-validation-for="DataConclusao" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3 mt-3">
+        <label asp-for="Descricao" class="form-label">Descrição:</label>
+        <input asp-for="Descricao" class="form-control" type="text" required />
+        <span asp-validation-for="Descricao" class="text-danger"></span>
+    </div>
+    <button class="btn btn-primary" type="submit">Registrar</button>
+
+    <p style="color:red">@ViewBag.Error</p>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+

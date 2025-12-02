@@ -21,12 +21,13 @@ namespace GestorAtividades.Service
             if (usuario == null)
                 throw new Exception("Usuário não encontrado.");
 
+            atividade.DataInicio = TimeHelper.BrazilToUtc(atividade.DataInicio);
+            atividade.DataConclusao = TimeHelper.BrazilToUtc(atividade.DataConclusao);
             atividade.UserId = userId;
             atividade.Status = StatusAtividade.Pendente;
             atividade.DataRegistro = TimeHelper.NowInBrazil();
             _context.Atividades.Add(atividade);
-            await _context.SaveChangesAsync();
-            
+            await _context.SaveChangesAsync();  
         }
     }
 }

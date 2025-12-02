@@ -24,15 +24,19 @@ namespace GestorAtividades.Controllers
                 if (userIdString == null)
                     return Unauthorized();
 
+                if (!ModelState.IsValid)
+                    return View("~/Views/Pages/RegistrarAtividade.cshtml", atividade);
+
+
                 int userId = int.Parse(userIdString);
                 await _atividadeService.Register(userId, atividade);
-                TempData["SuccessMessage"] = "Usuário registrado com sucesso!";
-                return RedirectToAction("Login");
+                TempData["SuccessMessage"] = "Atividade criada com sucesso!";
+                return RedirectToAction("Main", "Pages");
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
-                return View("Main", "Pages");
+                return RedirectToAction("RegistrarAtividade", "Pages");
             }
         }
         

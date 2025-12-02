@@ -1,10 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "t3mwKMyDTFI=",
+  "dgSpecHash": "Y12pQ1aQkW0=",
   "success": true,
   "projectFilePath": "/home/darlison-silva/Documentos/mvc/GestorAtividades/GestorAtividades.csproj",
   "expectedPackageFiles": [
     "/home/darlison-silva/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
+    "/home/darlison-silva/.nuget/packages/fluentvalidation/11.11.0/fluentvalidation.11.11.0.nupkg.sha512",
+    "/home/darlison-silva/.nuget/packages/fluentvalidation.aspnetcore/11.3.1/fluentvalidation.aspnetcore.11.3.1.nupkg.sha512",
+    "/home/darlison-silva/.nuget/packages/fluentvalidation.dependencyinjectionextensions/11.11.0/fluentvalidation.dependencyinjectionextensions.11.11.0.nupkg.sha512",
     "/home/darlison-silva/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/darlison-silva/.nuget/packages/microsoft.bcl.asyncinterfaces/7.0.0/microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
     "/home/darlison-silva/.nuget/packages/microsoft.build.framework/17.8.3/microsoft.build.framework.17.8.3.nupkg.sha512",
