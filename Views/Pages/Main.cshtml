@@ -1,12 +1,49 @@
+@model IEnumerable<GestorAtividades.Models.Atividade>
+
 @{
-    ViewData["Title"] = "Sua página";
+    ViewData["Title"] = "Suas atividades";
 }
 
-<div class="text-center">
-    <h3 class="display-4">Seja bem-vindo @User.Identity.Name!</h3>
+<div class="container mt-4">
 
-    <div> 
-        <a href="@Url.Action("Logout", "Auth")" class="btn btn-danger">Sair</a>
-        <a href="@Url.Action("RegistrarAtividade")" class="btn btn-primary">Criar atividade</a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Olá, @User.Identity.Name 👋</h2>
+
+        <div>
+            <a href="@Url.Action("RegistrarAtividade")" class="btn btn-success me-2">+ Nova atividade</a>
+            <a href="@Url.Action("Logout", "Auth")" class="btn btn-outline-danger">Sair</a>
+        </div>
     </div>
+
+    @if(!Model.Any())
+    {
+        <div class="alert alert-warning text-center">
+            Você ainda não possui atividades cadastradas.
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            @foreach (var atividade in Model)
+            {
+                <div class="card shadow-lg mb-4">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">@atividade.Titulo</h4>
+                        <hr />
+                        <p><strong>Início:</strong> @atividade.DataInicio.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p><strong>Conclusão:</strong> @atividade.DataConclusao.ToString("dd/MM/yyyy HH:mm")</p>
+                        <p><strong>Status:</strong> @atividade.Status</p>
+                        <p><strong>Registrado em:</strong> @atividade.DataRegistro.ToString("dd/MM/yyyy HH:mm")</p>
+                        <hr />
+                        <div>
+                           <h5>Descrição</h5>
+                           <p class="mt-3">@atividade.Descricao</p>
+                        </div>
+                    </div>
+                    <a href="@Url.Action("Atividade", new { id = atividade.Id })" class="btn btn-primary">Vizualizar</a>
+                </div>
+            }
+        </div>
+    </div>
+
 </div>

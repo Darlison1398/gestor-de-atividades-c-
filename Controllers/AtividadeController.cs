@@ -1,3 +1,4 @@
+using GestorAtividades.Data;
 using GestorAtividades.Models;
 using GestorAtividades.Service;
 using Microsoft.AspNetCore.Mvc;
@@ -9,15 +10,22 @@ namespace GestorAtividades.Controllers
     public class AtividadeController : Controller
     {
         private readonly AtividadeService _atividadeService;
+        private readonly ApplicationDbContext _context;
 
-        public AtividadeController(AtividadeService atividadeService)
+        public AtividadeController(AtividadeService atividadeService, ApplicationDbContext context)
         {
             _atividadeService = atividadeService;
+            _context = context;
         }
 
         [HttpPost]
         public async Task<IActionResult> CriarAtividade (Atividade atividade)
         {
+            foreach (var e in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine(e.ErrorMessage);
+            }
+
             try
             {
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);

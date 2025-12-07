@@ -4,40 +4,57 @@
     ViewData["Title"] = "Criar atividade";
 }
 
-<h3>Criar uma nova atividade</h3>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
 
-<form method="post" asp-action="CriarAtividade" asp-controller="Atividade">
+            <div class="card shadow-lg p-4">
+                <h3 class="text-center mb-4">Criar nova atividade</h3>
+                
+                <form method="post" asp-action="CriarAtividade" asp-controller="Atividade">
 
-    <div class="mb-3 mt-3">
-        <label class="form-label" asp-for="Titulo">Título:</label>
-        <input asp-for="Titulo" class="form-control" type="text" required />
-        <span asp-validation-for="Titulo" class="text-danger"></span>
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Titulo"></label>
+                        <input asp-for="Titulo" class="form-control" placeholder="Digite o título da atividade"/>
+                        <span asp-validation-for="Titulo" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DataInicio" class="form-label"></label>
+                        <input asp-for="DataInicio" class="form-control" type="datetime-local"/>
+                        <span asp-validation-for="DataInicio" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DataConclusao" class="form-label"></label>
+                        <input asp-for="DataConclusao" class="form-control" type="datetime-local"/>
+                        <span asp-validation-for="DataConclusao" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descricao" class="form-label"></label>
+                        <textarea asp-for="Descricao" class="form-control" rows="3" placeholder="Digite detalhes da atividade"></textarea>
+                        <span asp-validation-for="Descricao" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" type="submit">Salvar atividade</button>
+                    </div>
+
+                </form>
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger mt-3">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+            </div>
+
+        </div>
     </div>
-
-    <div class="mb-3 mt-3">
-        <label class="form-label" asp-for="DataInicio">Data Início:</label>
-        <input asp-for="DataInicio" class="form-control" type="date" required />
-        <span asp-validation-for="DataInicio" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3 mt-3">
-        <label asp-for="DataConclusao" class="form-label">Data Conclusão:</label>
-        <input asp-for="DataConclusao" class="form-control" type="date" required />
-        <span asp-validation-for="DataConclusao" class="text-danger"></span>
-    </div>
-
-    <div class="mb-3 mt-3">
-        <label asp-for="Descricao" class="form-label">Descrição:</label>
-        <input asp-for="Descricao" class="form-control" type="text" required />
-        <span asp-validation-for="Descricao" class="text-danger"></span>
-    </div>
-    <button class="btn btn-primary" type="submit">Registrar</button>
-
-    <p style="color:red">@ViewBag.Error</p>
-</form>
+</div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-
-

@@ -1,0 +1,48 @@
+@model GestorAtividades.Models.Atividade
+
+@{
+    ViewData["Title"] = "Detalhes da Atividade";
+}
+
+<div class="container mt-4">
+
+    <div class="col-md-8 offset-md-2">
+
+        <div class="card shadow-lg">
+            <div class="card-body">
+
+                <h3 class="card-title text-primary">@Model.Titulo</h3>
+                <hr />
+
+                <p><strong>Data início:</strong> @Model.DataInicio.ToString("dd/MM/yyyy HH:mm")</p>
+                <p><strong>Data conclusão:</strong> @Model.DataConclusao.ToString("dd/MM/yyyy HH:mm")</p>
+                <p><strong>Status:</strong> @Model.Status</p>
+                <p><strong>Registrado em:</strong> @Model.DataRegistro.ToString("dd/MM/yyyy HH:mm")</p>
+
+                <hr />
+
+                <h5>Descrição</h5>
+                <p>@Model.Descricao</p>
+            </div>
+
+            <div class="card-footer d-flex justify-content-between">
+
+                <a href="@Url.Action("Editar", "Atividade", new { id = Model.Id })" 
+                   class="btn btn-warning">
+                    Editar
+                </a>
+
+                <a href="@Url.Action("ExcluirConfirmacao", "Atividade", new { id = Model.Id })" 
+                   class="btn btn-danger">
+                    Excluir
+                </a>
+
+                <a href="@Url.Action("ListaAtividades", "Atividade")"
+                   class="btn btn-outline-secondary">
+                    Voltar
+                </a>
+
+            </div>
+        </div>
+    </div>
+</div>

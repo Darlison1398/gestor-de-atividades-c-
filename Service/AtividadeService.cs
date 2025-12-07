@@ -25,9 +25,9 @@ namespace GestorAtividades.Service
             atividade.DataConclusao = TimeHelper.BrazilToUtc(atividade.DataConclusao);
             atividade.UserId = userId;
             atividade.Status = StatusAtividade.Pendente;
-            atividade.DataRegistro = TimeHelper.NowInBrazil();
             _context.Atividades.Add(atividade);
             await _context.SaveChangesAsync();  
         }
+
     }
 }
