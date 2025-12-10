@@ -48,5 +48,26 @@ namespace GestorAtividades.Controllers
             }
         }
         
+
+        [HttpPost]
+        public async Task<IActionResult> DeletarAtividade(int id)
+        {
+            try
+            {
+                var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userIdString == null)
+                    return Unauthorized();
+
+                int userId = int.Parse(userIdString);
+                await _atividadeService.Deletar(userId, id);
+                TempData["SuccessMessage"] = "Atividade excluída com sucesso!";
+                return RedirectToAction("Main", "Pages");
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction("Main", "Pages");
+            }
+        }
     }
 }

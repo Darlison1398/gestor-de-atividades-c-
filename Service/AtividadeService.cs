@@ -1,5 +1,6 @@
 using GestorAtividades.Data;
 using GestorAtividades.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestorAtividades.Service
@@ -27,6 +28,18 @@ namespace GestorAtividades.Service
             atividade.Status = StatusAtividade.Pendente;
             _context.Atividades.Add(atividade);
             await _context.SaveChangesAsync();  
+        }
+
+        public async Task Deletar (int userId, int id)
+        {
+            var atividade = await _context.Atividades
+                .FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
+
+            if (atividade == null)
+                throw new Exception("Atividade não encontrada ou usuário sem permissão.");
+
+            _context.Atividades.Remove(atividade);
+            await _context.SaveChangesAsync();
         }
 
     }

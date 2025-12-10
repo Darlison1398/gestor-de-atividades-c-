@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using GestorAtividades.Data;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
+using GestorAtividades.Service;
 
 namespace GestorAtividades.Controllers;
 
@@ -13,10 +14,12 @@ public class PagesController : Controller
 {
     private readonly ILogger<PagesController> _logger;
     private readonly ApplicationDbContext _context;
-    public PagesController(ILogger<PagesController> logger, ApplicationDbContext context)
+    private readonly AtividadeService _atividadeService;
+    public PagesController(ILogger<PagesController> logger, ApplicationDbContext context, AtividadeService atividadeService)
     {
         _logger = logger;
         _context = context;
+        _atividadeService = atividadeService;
     }
 
     public async Task<IActionResult> Main()
@@ -48,6 +51,26 @@ public class PagesController : Controller
             return NotFound();
 
         return View(atividade);
+    }
+
+    public async Task<IActionResult> DeletarAtividade(int id)
+    {
+        try
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdString == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdString);
+            await _atividadeService.Deletar(userId, id);
+            TempData["SuccessMessage"] = "Atividade excluída com sucesso!";
+            return RedirectToAction("Main", "Pages");
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction("Main");
+        }
     }
 
         
