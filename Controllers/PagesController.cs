@@ -44,11 +44,19 @@ public class PagesController : Controller
 
     public async Task<IActionResult> Atividade(int id)
     {
-        var atividade = await _context.Atividades
-            .FirstOrDefaultAsync(x => x.Id == id);
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userIdString == null)
+            return Unauthorized();
 
+        int userId = int.Parse(userIdString);
+
+        var atividade = await _context.Atividades
+            .FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
         if (atividade == null)
             return NotFound();
+
+        atividade.DataInicio = atividade.DataInicio.ToLocalTime();
+        atividade.DataConclusao = atividade.DataConclusao.ToLocalTime();
 
         return View(atividade);
     }
@@ -65,6 +73,52 @@ public class PagesController : Controller
             await _atividadeService.Deletar(userId, id);
             TempData["SuccessMessage"] = "Atividade excluída com sucesso!";
             return RedirectToAction("Main", "Pages");
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return RedirectToAction("Main");
+        }
+    }
+
+    public async Task<IActionResult> EditarAtividade(int id)
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (userIdString == null)
+            return Unauthorized();
+
+        int userId = int.Parse(userIdString);
+
+        var atividade = await _context.Atividades
+            .FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
+        if (atividade == null)
+            return NotFound();
+
+        atividade.DataInicio = atividade.DataInicio.ToLocalTime();
+        atividade.DataConclusao = atividade.DataConclusao.ToLocalTime();
+
+        return View("EditarAtividade", atividade);
+    }
+
+    public async Task<IActionResult> UpdateAtividade(int id, Atividade atividade)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(atividade);
+            }
+            
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdString == null)
+                return Unauthorized();
+
+            int userId = int.Parse(userIdString);
+
+            await _atividadeService.Editar(userId, id, atividade);
+            TempData["SuccessMessage"] = "Atividade editada com sucesso!";
+            return RedirectToAction("Main", "Pages");
+
         }
         catch (Exception ex)
         {

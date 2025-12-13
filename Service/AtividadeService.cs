@@ -42,5 +42,22 @@ namespace GestorAtividades.Service
             await _context.SaveChangesAsync();
         }
 
+        public async Task Editar (int userId, int id, Atividade newAtividade)
+        {
+            var atividade = await _context.Atividades.FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
+
+            if (atividade == null) 
+                throw new Exception("Atividade não encontrada, ou usuário sem permissão para editar");
+
+            atividade.Titulo = newAtividade.Titulo;
+            atividade.DataInicio = TimeHelper.BrazilToUtc(newAtividade.DataInicio);
+            atividade.DataConclusao = TimeHelper.BrazilToUtc(newAtividade.DataConclusao);
+            atividade.Status = newAtividade.Status;
+            atividade.Descricao = newAtividade.Descricao;
+
+            await _context.SaveChangesAsync();
+            
+        }
+
     }
 }

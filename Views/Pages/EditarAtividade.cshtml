@@ -1,0 +1,71 @@
+@model GestorAtividades.Models.Atividade
+
+@{
+    ViewData["Title"] = "Editar atividade";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-lg p-4">
+                <h3 class="text-center mb-4">Editar atividade</h3>
+                
+                <form method="post" asp-action="UpdateAtividade" asp-controller="Pages" asp-route-id="@Model.Id"> 
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Titulo"></label>
+                        <input asp-for="Titulo" class="form-control" placeholder="Digite o título da atividade"/>
+                        <span asp-validation-for="Titulo" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Status" class="form-label"></label>
+                        <select asp-for="Status"
+                                class="form-select"
+                                asp-items="Html.GetEnumSelectList<StatusAtividade>()">
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+
+                    <div class="mb-3"> 
+                        <label asp-for="DataInicio" class="form-label"></label>
+                        <input asp-for="DataInicio" class="form-control" type="datetime-local"/>
+                        <span asp-validation-for="DataInicio" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DataConclusao" class="form-label"></label>
+                        <input asp-for="DataConclusao" class="form-control" type="datetime-local"/>
+                        <span asp-validation-for="DataConclusao" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descricao" class="form-label"></label>
+                        <textarea asp-for="Descricao" class="form-control" rows="3" placeholder="Digite detalhes da atividade"></textarea>
+                        <span asp-validation-for="Descricao" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" type="submit">  Editar atividade</button>
+                    </div>
+
+                </form>
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger mt-3">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
