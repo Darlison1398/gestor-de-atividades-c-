@@ -2,6 +2,7 @@ using GestorAtividades.Models;
 using GestorAtividades.Data;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace GestorAtividades.Service
 {
@@ -31,6 +32,13 @@ namespace GestorAtividades.Service
             _context.Usuarios.Add(user);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Usuario> GetUsuarioByIdAsync(int userId)
+        {
+            return await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
 
     }
 }

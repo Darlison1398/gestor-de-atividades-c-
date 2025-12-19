@@ -10,7 +10,7 @@ using GestorAtividades.Service;
 namespace GestorAtividades.Controllers;
 
 [Authorize] 
-public class PagesController : Controller
+public class PagesController : BaseController
 {
     private readonly ILogger<PagesController> _logger;
     private readonly ApplicationDbContext _context;
@@ -24,15 +24,11 @@ public class PagesController : Controller
 
     public async Task<IActionResult> Main()
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userIdString == null)
+        if (UserId == 0)
             return Unauthorized();
 
-        int userId = int.Parse(userIdString);
-
-        var atividades = await _context.Atividades
-            .Where(a => a.UserId == userId)
-            .ToListAsync();
+        var atividades = await _atividadeService
+            .ListarPorUsuarioAsync(UserId);
 
         return View(atividades);
     }
@@ -44,19 +40,14 @@ public class PagesController : Controller
 
     public async Task<IActionResult> Atividade(int id)
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userIdString == null)
+        if (UserId == 0)
             return Unauthorized();
 
-        int userId = int.Parse(userIdString);
+        var atividade = await _atividadeService
+            .BuscarPorIdAsync(UserId, id);
 
-        var atividade = await _context.Atividades
-            .FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
         if (atividade == null)
             return NotFound();
-
-        atividade.DataInicio = atividade.DataInicio.ToLocalTime();
-        atividade.DataConclusao = atividade.DataConclusao.ToLocalTime();
 
         return View(atividade);
     }
@@ -65,12 +56,10 @@ public class PagesController : Controller
     {
         try
         {
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userIdString == null)
+            if (UserId == 0)
                 return Unauthorized();
 
-            int userId = int.Parse(userIdString);
-            await _atividadeService.Deletar(userId, id);
+            await _atividadeService.Deletar(UserId, id);
             TempData["SuccessMessage"] = "Atividade excluída com sucesso!";
             return RedirectToAction("Main", "Pages");
         }
@@ -83,19 +72,12 @@ public class PagesController : Controller
 
     public async Task<IActionResult> EditarAtividade(int id)
     {
-        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (userIdString == null)
+        if (UserId == 0)
             return Unauthorized();
 
-        int userId = int.Parse(userIdString);
-
-        var atividade = await _context.Atividades
-            .FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
+        var atividade = await _atividadeService.BuscarPorIdAsync(UserId, id);
         if (atividade == null)
             return NotFound();
-
-        atividade.DataInicio = atividade.DataInicio.ToLocalTime();
-        atividade.DataConclusao = atividade.DataConclusao.ToLocalTime();
 
         return View("EditarAtividade", atividade);
     }
@@ -109,15 +91,12 @@ public class PagesController : Controller
                 return View(atividade);
             }
             
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userIdString == null)
+            if (UserId == 0)
                 return Unauthorized();
 
-            int userId = int.Parse(userIdString);
-
-            await _atividadeService.Editar(userId, id, atividade);
+            await _atividadeService.Editar(UserId, id, atividade);
             TempData["SuccessMessage"] = "Atividade editada com sucesso!";
-            return RedirectToAction("Main", "Pages");
+            return RedirectToAction("Main");
 
         }
         catch (Exception ex)

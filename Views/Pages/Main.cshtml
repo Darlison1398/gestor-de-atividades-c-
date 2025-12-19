@@ -34,7 +34,7 @@
                         <p><strong>Início:</strong> @atividade.DataInicio.ToString("dd/MM/yyyy HH:mm")</p>
                         <p><strong>Conclusão:</strong> @atividade.DataConclusao.ToString("dd/MM/yyyy HH:mm")</p>
                         <p><strong>Status:</strong> 
-                            <span class="@atividade.Status.GetColor()">@atividade.Status</span>
+                            <span class="@atividade.Status.GetColor()">@Html.DisplayFor(model => atividade.Status)</span>
                         </p>
 
                         <p><strong>Registrado em:</strong> @atividade.DataRegistro.ToString("dd/MM/yyyy HH:mm")</p>

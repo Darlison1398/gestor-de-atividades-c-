@@ -10,7 +10,7 @@ using GestorAtividades.Service;
 
 namespace GestorAtividades.Controllers 
 {
-    public class AuthController : Controller
+    public class AuthController : BaseController
     {
 
         private readonly ApplicationDbContext _context;
@@ -81,8 +81,27 @@ namespace GestorAtividades.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
-                //ModelState.AddModelError("", ex.Message);
                 return View("CreateUser");
+            }
+        }
+
+        public async Task<IActionResult> Me()
+        {
+            try
+            {
+                if (UserId == 0)
+                    return Unauthorized();
+
+                var usuario = await _usuarioService.GetUsuarioByIdAsync(UserId);
+                if (usuario == null)
+                    return NotFound();
+
+                return View(usuario);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View("Login");
             }
         }
 

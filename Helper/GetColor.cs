@@ -5,11 +5,11 @@ public static class StatusExtensions
     {
         return status switch
         {
-            StatusAtividade.Pendente => "text-warning",
-            StatusAtividade.EmDesenvolvimento => "text-primary",
-            StatusAtividade.EmTeste => "text-info",
-            StatusAtividade.Concluido => "text-success",
-            _ => "text-dark"
+            StatusAtividade.Pendente => "badge bg-warning",
+            StatusAtividade.EmDesenvolvimento => "badge bg-primary",
+            StatusAtividade.EmTeste => "badge bg-info",
+            StatusAtividade.Concluido => "badge bg-success",
+            _ => "badge bg-dark"
         };
     }
 }

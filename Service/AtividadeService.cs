@@ -59,5 +59,20 @@ namespace GestorAtividades.Service
             
         }
 
+        public async Task<List<Atividade>> ListarPorUsuarioAsync(int userId)
+        {
+            return await _context.Atividades
+                .Where(a => a.UserId == userId)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<Atividade?> BuscarPorIdAsync(int userId, int atividadeId)
+        {
+            return await _context.Atividades
+                .FirstOrDefaultAsync(a => a.Id == atividadeId && a.UserId == userId);
+        }
+
+
     }
 }

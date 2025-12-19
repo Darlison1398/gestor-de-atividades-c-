@@ -21,11 +21,6 @@ namespace GestorAtividades.Controllers
         [HttpPost]
         public async Task<IActionResult> CriarAtividade (Atividade atividade)
         {
-            foreach (var e in ModelState.Values.SelectMany(v => v.Errors))
-            {
-                Console.WriteLine(e.ErrorMessage);
-            }
-
             try
             {
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -49,7 +44,7 @@ namespace GestorAtividades.Controllers
         }
         
 
-        [HttpPost]
+        /*[HttpPost]
         public async Task<IActionResult> DeletarAtividade(int id)
         {
             try
@@ -68,6 +63,6 @@ namespace GestorAtividades.Controllers
                 TempData["ErrorMessage"] = ex.Message;
                 return RedirectToAction("Main", "Pages");
             }
-        }
+        }*/
     }
 }
