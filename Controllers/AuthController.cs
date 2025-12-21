@@ -27,11 +27,11 @@ namespace GestorAtividades.Controllers
             _usuarioService = usuarioService;
         }
 
-        [AllowAnonymous]
+        /*[AllowAnonymous]
         public IActionResult Login()
         {
             return View();
-        }
+        }*/
 
         [HttpPost]
         [AllowAnonymous]
@@ -65,14 +65,14 @@ namespace GestorAtividades.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("CookieAuth");
-            return RedirectToAction("Login");
+            return RedirectToAction("Index", "Home");
         }
 
-        [AllowAnonymous]
+        /*[AllowAnonymous]
         public IActionResult CreateUser()
         {
             return View();
-        }
+        }*/
 
         [HttpPost]
         [AllowAnonymous]
@@ -80,18 +80,18 @@ namespace GestorAtividades.Controllers
         public async Task<IActionResult> CreateUsuario(Usuario usuario)
         {
             if (!ModelState.IsValid)
-                return View("CreateUser", usuario);
+                return View("Home", usuario);
 
             try
             {
                 await _usuarioService.Register(usuario);
                 TempData["SuccessMessage"] = "Usuário registrado com sucesso!";
-                return RedirectToAction("Login");
+                return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
-                return View("CreateUser");
+                return View("Home");
             }
         }
 
@@ -166,6 +166,18 @@ namespace GestorAtividades.Controllers
                 TempData["ErrorMessage"] = ex.Message;
                 return View("Login");
             }
+        }
+
+
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            // aqui futuramente você:
+            // - valida email
+            // - gera token
+            // - envia email
+
+            ViewBag.ForgotMessage = "Se o email existir, enviaremos um link de recuperação.";
+            return View("~/Views/Home/Index.cshtml");
         }
 
     }

@@ -1,10 +1,64 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Bem-vindo</h1>
-    <p> 
-        Crie e gerencie suas atividades. Basta Criar sua conta e fazer o login para iniciar esse processo.
-    </p>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-5">Bem-vindo 👋</h1>
+        <p>
+            Crie e gerencie suas atividades.
+            Basta fazer o login ou criar sua conta para começar.
+        </p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+
+            <div class="card shadow p-4">
+
+                <!-- LOGIN -->
+                <div id="loginBox">
+                    <h4 class="text-center mb-3">Entrar</h4>
+                    <partial name="_LoginForm" />
+                </div>
+
+                <!-- REGISTER -->
+                <div id="registerBox" style="display:none">
+                    <h4 class="text-center mb-3">Criar conta</h4>
+                    <partial name="_RegisterForm" />
+                </div>
+
+                <!-- FORGOT PASSWORD -->
+                <div id="forgotBox" style="display:none">
+                    <h4 class="text-center mb-3">Recuperar senha</h4>
+                    <partial name="_ForgotPasswordForm" />
+                </div>
+
+            </div>
+
+        </div>
+    </div>
 </div>
+
+<script>
+    function showRegister() {
+        hideAll();
+        document.getElementById('registerBox').style.display = 'block';
+    }
+
+    function showLogin() {
+        hideAll();
+        document.getElementById('loginBox').style.display = 'block';
+    }
+
+    function showForgot() {
+        hideAll();
+        document.getElementById('forgotBox').style.display = 'block';
+    }
+
+    function hideAll() {
+        document.getElementById('loginBox').style.display = 'none';
+        document.getElementById('registerBox').style.display = 'none';
+        document.getElementById('forgotBox').style.display = 'none';
+    }
+</script>
