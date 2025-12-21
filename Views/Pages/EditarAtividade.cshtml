@@ -44,7 +44,8 @@
 
                     <div class="mb-3">
                         <label asp-for="Descricao" class="form-label"></label>
-                        <textarea asp-for="Descricao" class="form-control" rows="3" placeholder="Digite detalhes da atividade"></textarea>
+                        <div id="editor" style="height: 200px;"></div>
+                        <input type="hidden" asp-for="Descricao" id="Descricao" />
                         <span asp-validation-for="Descricao" class="text-danger"></span>
                     </div>
 
@@ -69,3 +70,28 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
+<script>
+    var quill = new Quill('#editor', {
+        theme: 'snow',
+        placeholder: 'Descreva sua atividade...',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['link'],
+                ['clean']
+            ]
+        }
+    });
+
+    // 🔥 CARREGAR DESCRIÇÃO EXISTENTE
+    var descricaoExistente = `@Html.Raw(Model.Descricao ?? "")`;
+    quill.root.innerHTML = descricaoExistente;
+
+    // 🔥 AO SUBMETER, SALVAR O HTML
+    document.querySelector('form').addEventListener('submit', function () {
+        document.getElementById('Descricao').value = quill.root.innerHTML;
+    });
+</script>

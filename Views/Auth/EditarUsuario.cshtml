@@ -22,7 +22,7 @@
 
     <div class="mb-3 mt-3">
         <label asp-for="Senha" class="form-label">Senha:</label>
-        <input asp-for="Senha" class="form-control" type="password" required />
+        <input asp-for="Senha" class="form-control" type="password" autocomplete="new-password" />
         <span asp-validation-for="Senha" class="text-danger"></span>
     </div>
     <button class="btn btn-primary" type="submit">Editar</button>

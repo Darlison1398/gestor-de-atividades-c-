@@ -7,48 +7,128 @@
 
 <div class="container mt-4">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Olá, @User.Identity.Name 👋</h2>
-
+    <!-- HEADER -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
         <div>
-            <a href="@Url.Action("RegistrarAtividade")" class="btn btn-success me-2">+ Nova atividade</a>
-            <a href="@Url.Action("Perfil", "Auth")" class="btn btn-success me-2">Perfil</a>
-            <a href="@Url.Action("Logout", "Auth")" class="btn btn-outline-danger">Sair</a>
+            <h4 class="fw-bold mb-0">📋 Suas atividades</h4>
+            <small class="text-muted">Gerencie suas tarefas cadastradas</small>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("RegistrarAtividade")" class="btn btn-success w-100 w-md-auto">
+                <i class="fa-solid fa-plus"></i> Nova atividade
+            </a>
+
+            <button class="btn btn-outline-primary w-100 w-md-auto" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#menuLateral">
+                <i class="fa-solid fa-house"></i>
+            </button>
         </div>
     </div>
 
-    @if(!Model.Any())
+    <!-- OFFCANVAS MENU -->
+    <div class="offcanvas offcanvas-start" id="menuLateral">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title">
+                Olá, <strong>@User.Identity.Name</strong> 👋
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+
+        <div class="offcanvas-body">
+            <div class="list-group list-group-flush">
+                <a href="@Url.Action("Perfil", "Auth")" class="list-group-item list-group-item-action">
+                    <i class="fa-solid fa-circle-user me-2"></i> Perfil
+                </a>
+
+                <a href="@Url.Action("Logout", "Auth")"
+                   class="list-group-item list-group-item-action text-danger">
+                    <i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Sair
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ALERTA SEM ATIVIDADES -->
+    @if (!Model.Any())
     {
-        <div class="alert alert-warning text-center">
+        <div class="alert alert-warning text-center mt-4">
+            <i class="fa-solid fa-triangle-exclamation"></i>
             Você ainda não possui atividades cadastradas.
         </div>
     }
 
+    <!-- PESQUISA -->
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-3">
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" class="form-control"
+                       placeholder="Pesquisar atividade...">
+            </div>
+        </div>
+    </div>
+
+    <!-- LISTA DE ATIVIDADES -->
     <div class="row">
         <div class="col-md-8 offset-md-2">
             @foreach (var atividade in Model)
             {
-                <div class="card shadow-lg mb-4">
+                <div class="card mb-4 shadow-sm border-0">
                     <div class="card-body">
-                        <h4 class="card-title text-primary">@atividade.Titulo</h4>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title text-primary fw-bold mb-0">
+                                @atividade.Titulo
+                            </h5>
+
+                            <span class="badge @atividade.Status.GetColor()">
+                                @Html.DisplayFor(model => atividade.Status)
+                            </span>
+                        </div>
+
                         <hr />
-                        <p><strong>Início:</strong> @atividade.DataInicio.ToString("dd/MM/yyyy HH:mm")</p>
-                        <p><strong>Conclusão:</strong> @atividade.DataConclusao.ToString("dd/MM/yyyy HH:mm")</p>
-                        <p><strong>Status:</strong> 
-                            <span class="@atividade.Status.GetColor()">@Html.DisplayFor(model => atividade.Status)</span>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="mb-1">
+                                    <strong>Início:</strong><br />
+                                    @atividade.DataInicio.ToString("dd/MM/yyyy HH:mm")
+                                </p>
+                            </div>
+
+                            <div class="col-md-6">
+                                <p class="mb-1">
+                                    <strong>Conclusão:</strong><br />
+                                    @atividade.DataConclusao.ToString("dd/MM/yyyy HH:mm")
+                                </p>
+                            </div>
+                        </div>
+
+                        <p class="text-muted small">
+                            Registrado em @atividade.DataRegistro.ToString("dd/MM/yyyy HH:mm")
                         </p>
 
-                        <p><strong>Registrado em:</strong> @atividade.DataRegistro.ToString("dd/MM/yyyy HH:mm")</p>
                         <hr />
-                        <div>
-                           <h5>Descrição</h5>
-                           <p class="mt-3">@atividade.Descricao</p>
+                        <div class="mt-3">
+                            @Html.Raw(atividade.Descricao)
+                        </div>
+
+                        <!--p class="text-secondary">
+                            @atividade.Descricao
+                        </p-->
+
+                        <div class="text-end">
+                            <a href="@Url.Action("Atividade", new { id = atividade.Id })"
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fa-solid fa-eye"></i> Visualizar
+                            </a>
                         </div>
                     </div>
-                    <a href="@Url.Action("Atividade", new { id = atividade.Id })" class="btn btn-primary w-20">Vizualizar</a>
                 </div>
             }
         </div>
     </div>
-
 </div>

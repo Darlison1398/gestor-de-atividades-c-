@@ -19,23 +19,26 @@
                 <hr />
 
                 <h5>Descrição</h5>
-                <p>@Model.Descricao</p>
+                <div class="mt-3">
+                    @Html.Raw(Model.Descricao)
+                </div>
             </div>
 
             <div class="card-footer d-flex justify-content-between">
-
                 <a href="@Url.Action("EditarAtividade", new { id = Model.Id })" 
                    class="btn btn-warning">
+                   <i class="fa-solid fa-pen"></i> 
                     Editar
                 </a>
 
                 <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">
+                    <i class="fa-solid fa-trash"></i> 
                     Excluir
                 </button>
 
-
                 <a href="@Url.Action("Main")"
                    class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-arrow-left"></i> 
                     Voltar
                 </a>
 
