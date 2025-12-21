@@ -32,8 +32,16 @@ build_property.EnableCodeStyleSeverity =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXV0aC9DcmVhdGVVc2VyLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
+[/home/darlison-silva/Documentos/mvc/GestorAtividades/Views/Auth/EditarUsuario.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXV0aC9FZGl0YXJVc3VhcmlvLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/home/darlison-silva/Documentos/mvc/GestorAtividades/Views/Auth/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXV0aC9Mb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/darlison-silva/Documentos/mvc/GestorAtividades/Views/Auth/Perfil.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXV0aC9QZXJmaWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/darlison-silva/Documentos/mvc/GestorAtividades/Views/Home/Index.cshtml]
@@ -42,6 +50,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/home/darlison-silva/Documentos/mvc/GestorAtividades/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/darlison-silva/Documentos/mvc/GestorAtividades/Views/Home/Sobre.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Tb2JyZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/home/darlison-silva/Documentos/mvc/GestorAtividades/Views/Pages/Atividade.cshtml]

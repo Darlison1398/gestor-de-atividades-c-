@@ -21,6 +21,11 @@ namespace GestorAtividades.Controllers
         [HttpPost]
         public async Task<IActionResult> CriarAtividade (Atividade atividade)
         {
+            foreach (var e in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine(e.ErrorMessage);
+            }
+
             try
             {
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);

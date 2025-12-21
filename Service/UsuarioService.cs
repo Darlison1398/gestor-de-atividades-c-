@@ -3,6 +3,7 @@ using GestorAtividades.Data;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using GestorAtividades.Dto;
 
 namespace GestorAtividades.Service
 {
@@ -37,6 +38,24 @@ namespace GestorAtividades.Service
         {
             return await _context.Usuarios
                 .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
+        public async Task Editar(int userId, UsuarioDto usuarioDto)
+        {
+            var usuario = await _context.Usuarios
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (usuario == null)
+                throw new Exception("Usuário não encontrado");
+
+            usuario.Nome = usuarioDto.Nome;
+            usuario.Email = usuarioDto.Email;
+            if (!string.IsNullOrWhiteSpace(usuarioDto.Senha))
+            {
+                usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(usuarioDto.Senha);
+            }
+            await _context.SaveChangesAsync();
+
         }
 
 

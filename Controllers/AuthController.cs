@@ -6,10 +6,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using GestorAtividades.Service;
+using Microsoft.AspNetCore.Authorization;
+using GestorAtividades.Dto;
 
 
 namespace GestorAtividades.Controllers 
 {
+
+    [Authorize(AuthenticationSchemes = "CookieAuth")]
     public class AuthController : BaseController
     {
 
@@ -23,12 +27,15 @@ namespace GestorAtividades.Controllers
             _usuarioService = usuarioService;
         }
 
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string senha)
         {
             var user = await _context.Usuarios
@@ -61,12 +68,15 @@ namespace GestorAtividades.Controllers
             return RedirectToAction("Login");
         }
 
+        [AllowAnonymous]
         public IActionResult CreateUser()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUsuario(Usuario usuario)
         {
             if (!ModelState.IsValid)
@@ -85,7 +95,8 @@ namespace GestorAtividades.Controllers
             }
         }
 
-        public async Task<IActionResult> Me()
+        [Authorize(AuthenticationSchemes = "CookieAuth")]
+        public async Task<IActionResult> Perfil()
         {
             try
             {
@@ -97,6 +108,58 @@ namespace GestorAtividades.Controllers
                     return NotFound();
 
                 return View(usuario);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View("Login");
+            }
+        }
+
+        [Authorize(AuthenticationSchemes = "CookieAuth")]
+        public async Task<IActionResult> EditarUsuario()
+        {
+            try
+            {
+                if (UserId == 0)
+                    return Unauthorized();
+
+                var usuario = await _usuarioService.GetUsuarioByIdAsync(UserId);
+                if (usuario == null)
+                    return NotFound();
+
+                var dto = new UsuarioDto
+                {
+                    Nome = usuario.Nome,
+                    Email = usuario.Email
+                };
+
+                return View(dto);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View("Login");
+            }
+            
+        }
+
+        [Authorize(AuthenticationSchemes = "CookieAuth")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateUsuario(UsuarioDto usuarioDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return View("EditarUsuario", usuarioDto);
+             
+                if (UserId == 0)
+                    return Unauthorized();
+
+                await _usuarioService.Editar(UserId, usuarioDto);
+                TempData["SuccessMessage"] = "Perfil atualizado com sucesso!";
+                return RedirectToAction(nameof(Perfil));
+                
             }
             catch (Exception ex)
             {
