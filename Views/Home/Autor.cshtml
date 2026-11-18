@@ -3,26 +3,111 @@
 }
 
 <div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="card card-app">
+    <div class="col-xl-10">
+        <section class="card card-app mb-4" aria-labelledby="titulo-autor">
             <div class="card-body p-4 p-md-5">
-                <h1 class="h3 fw-bold mb-3">Sobre o autor</h1>
-                <p class="mb-4">
-                    Eu sou Darlison Silva, tenho 27 anos e sou desenvolvedor Full Stack. Tenho experiência com desenvolvimento
-                    e manutenção de sistemas web e mobile, front-end e back-end, banco de dados, versionamento de código,
-                    análise e levantamento de requisitos, metodologia ágil e suporte técnico ao usuário.
-                </p>
+                <div class="row align-items-center g-4">
+                    <div class="col-auto">
+                        <span class="avatar avatar-lg" aria-hidden="true">DS</span>
+                    </div>
+                    <div class="col">
+                        <p class="small text-primary text-uppercase fw-semibold mb-1">Sobre o autor</p>
+                        <h1 id="titulo-autor" class="display-6 fw-bold mb-2">Darlison Silva</h1>
+                        <p class="lead text-body-secondary mb-0">Desenvolvedor Full Stack · 28 anos</p>
+                    </div>
+                </div>
 
-                <h2 class="h6 text-body-secondary text-uppercase small fw-semibold">Habilidades</h2>
-                <ul class="mb-0">
-                    <li>Angular, React, Bootstrap</li>
-                    <li>Java, Spring Boot, C#, .NET Core</li>
-                    <li>SQL, MySQL, PostgreSQL, SQL Server, Oracle</li>
-                    <li>Git, GitHub, GitLab, GitHub Actions</li>
-                    <li>Azure, servidores VPS</li>
-                    <li>Documentação, metodologia ágil Scrum</li>
-                </ul>
+                <hr class="my-4 my-md-5" />
+
+                <div class="row g-4">
+                    <div class="col-lg-7">
+                        <h2 class="h4 fw-bold mb-3">Desenvolvimento de ponta a ponta</h2>
+                        <p>
+                            Tenho experiência no desenvolvimento e na manutenção de sistemas web e mobile, trabalhando
+                            tanto no front-end quanto no back-end. Também atuo com bancos de dados, versionamento de código,
+                            análise e levantamento de requisitos e suporte técnico ao usuário.
+                        </p>
+                        <p class="text-body-secondary mb-0">
+                            Minha experiência abrange diferentes etapas de um produto: entender a necessidade, construir a solução,
+                            cuidar da manutenção e apoiar quem utiliza o sistema.
+                        </p>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="rounded-3 bg-body-tertiary p-4 h-100">
+                            <h2 class="h5 fw-bold mb-3">Como trabalho</h2>
+                            <ul class="list-unstyled mb-0">
+                                <li class="d-flex gap-2 mb-3">
+                                    <i class="fa-solid fa-check text-primary mt-1" aria-hidden="true"></i>
+                                    <span>Desenvolvimento e manutenção de aplicações web e mobile</span>
+                                </li>
+                                <li class="d-flex gap-2 mb-3">
+                                    <i class="fa-solid fa-check text-primary mt-1" aria-hidden="true"></i>
+                                    <span>Colaboração em equipes com metodologia ágil Scrum</span>
+                                </li>
+                                <li class="d-flex gap-2">
+                                    <i class="fa-solid fa-check text-primary mt-1" aria-hidden="true"></i>
+                                    <span>Documentação, análise de requisitos e suporte ao usuário</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
+        </section>
+
+        <section aria-labelledby="titulo-habilidades">
+            <div class="mb-3">
+                <p class="small text-primary text-uppercase fw-semibold mb-1">Experiência técnica</p>
+                <h2 id="titulo-habilidades" class="h3 fw-bold mb-0">Ferramentas e tecnologias</h2>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6 col-xl-3">
+                    <article class="card card-app h-100">
+                        <div class="card-body p-4">
+                            <span class="recurso-icone mb-3" aria-hidden="true"><i class="fa-solid fa-display"></i></span>
+                            <h3 class="h5 fw-semibold">Front-end</h3>
+                            <p class="text-body-secondary mb-0">Angular, React e Bootstrap</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <article class="card card-app h-100">
+                        <div class="card-body p-4">
+                            <span class="recurso-icone mb-3" aria-hidden="true"><i class="fa-solid fa-code"></i></span>
+                            <h3 class="h5 fw-semibold">Back-end</h3>
+                            <p class="text-body-secondary mb-0">Java, Spring Boot, C# e .NET Core</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <article class="card card-app h-100">
+                        <div class="card-body p-4">
+                            <span class="recurso-icone mb-3" aria-hidden="true"><i class="fa-solid fa-database"></i></span>
+                            <h3 class="h5 fw-semibold">Dados e ferramentas</h3>
+                            <p class="text-body-secondary mb-0">SQL, MySQL, PostgreSQL, SQL Server, Oracle, Git, GitHub e GitLab</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <article class="card card-app h-100">
+                        <div class="card-body p-4">
+                            <span class="recurso-icone mb-3" aria-hidden="true"><i class="fa-solid fa-cloud"></i></span>
+                            <h3 class="h5 fw-semibold">Entrega e colaboração</h3>
+                            <p class="text-body-secondary mb-0">GitHub Actions, Azure, servidores VPS e Scrum</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-5 p-4 rounded-3 bg-body-tertiary">
+            <div>
+                <h2 class="h5 fw-bold mb-1">Este é um dos projetos do meu portfólio.</h2>
+                <p class="text-body-secondary mb-0">Veja como o GestorAtividades funciona.</p>
+            </div>
+            <a class="btn btn-primary" asp-controller="Home" asp-action="Sobre">
+                Sobre o projeto <i class="fa-solid fa-arrow-right ms-2" aria-hidden="true"></i>
+            </a>
         </div>
     </div>
 </div>
