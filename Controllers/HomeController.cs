@@ -6,31 +6,41 @@ namespace GestorAtividades.Controllers;
 
 public class HomeController : Controller
 {
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(ILogger<HomeController> logger)
-    {
-        _logger = logger;
-    }
-
     public IActionResult Index()
     {
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToAction("Index", "Atividades");
+
         return View();
     }
 
-    public IActionResult Privacy()
+    public IActionResult Autor()
     {
         return View();
     }
+
+    // URL antiga da página "Sobre o autor".
+    public IActionResult Privacy() => RedirectToActionPermanent(nameof(Autor));
 
     public IActionResult Sobre()
     {
         return View();
     }
 
+    /// <summary>
+    /// Página de erro amigável. Recebe exceções (UseExceptionHandler, fora de Development)
+    /// e códigos de status como 404/400 (UseStatusCodePagesWithReExecute).
+    /// </summary>
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
+    public IActionResult Erro(int? codigo)
     {
-        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        var status = codigo ?? 500;
+        Response.StatusCode = status;
+
+        return View("Error", new ErrorViewModel
+        {
+            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+            Codigo = status
+        });
     }
 }

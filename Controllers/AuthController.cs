@@ -1,30 +1,25 @@
-using GestorAtividades.Data;
-using GestorAtividades.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.EntityFrameworkCore;
+using GestorAtividades.Exceptions;
+using GestorAtividades.Helper;
 using GestorAtividades.Service;
+using GestorAtividades.ViewModels;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
-using GestorAtividades.Dto;
-
+using Microsoft.AspNetCore.Mvc;
 
 namespace GestorAtividades.Controllers
 {
-
-    [Authorize(AuthenticationSchemes = "CookieAuth")]
+    /// <summary>
+    /// Login, cadastro, recuperação de senha e logout. Os formulários ficam na Home
+    /// (partials _LoginForm, _RegisterForm, _ForgotPasswordForm); ViewBag.ActiveForm diz qual reabrir.
+    /// </summary>
     public class AuthController : BaseController
     {
-        // Login, cadastro e recuperação de senha ficam na Home (partials _LoginForm, _RegisterForm, _ForgotPasswordForm).
         private const string HomeView = "~/Views/Home/Index.cshtml";
-
-        private readonly ApplicationDbContext _context;
 
         private readonly UsuarioService _usuarioService;
 
-        public AuthController(ApplicationDbContext context, UsuarioService usuarioService)
+        public AuthController(UsuarioService usuarioService)
         {
-            _context = context;
             _usuarioService = usuarioService;
         }
 
@@ -34,7 +29,7 @@ namespace GestorAtividades.Controllers
         public IActionResult Login(string? returnUrl = null)
         {
             if (User.Identity?.IsAuthenticated == true)
-                return RedirectToAction("Main", "Pages");
+                return RedirectToAction("Index", "Atividades");
 
             return RedirectToAction("Index", "Home", new { returnUrl });
         }
@@ -42,152 +37,66 @@ namespace GestorAtividades.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email, string senha, string? returnUrl = null)
+        public async Task<IActionResult> Login(LoginViewModel form)
         {
-            var user = await _context.Usuarios
-                .FirstOrDefaultAsync(x => x.Email == email);
+            var usuario = await _usuarioService.AutenticarAsync(form.Email, form.Senha);
 
-            if (user == null || user.SenhaHash == null || !BCrypt.Net.BCrypt.Verify(senha, user.SenhaHash))
+            if (usuario == null)
             {
-                ViewBag.Error = "Credenciais inválidas!";
-                ViewBag.ReturnUrl = returnUrl;
+                ViewBag.Error = "Email ou senha inválidos.";
+                ViewBag.ReturnUrl = form.ReturnUrl;
                 return View(HomeView);
             }
 
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Nome ?? string.Empty),
-                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
-            };
+            await HttpContext.SignInAsync(Autenticacao.Esquema, Autenticacao.CriarPrincipal(usuario));
 
-            var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");
+            if (!string.IsNullOrEmpty(form.ReturnUrl) && Url.IsLocalUrl(form.ReturnUrl))
+                return LocalRedirect(form.ReturnUrl);
 
-            await HttpContext.SignInAsync("CookieAuth",
-                new ClaimsPrincipal(claimsIdentity));
-
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return LocalRedirect(returnUrl);
-
-            return RedirectToAction("Main", "Pages");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync("CookieAuth");
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Atividades");
         }
 
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateUsuario(Usuario usuario)
+        public async Task<IActionResult> Registrar(RegistrarUsuarioViewModel form)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                ViewBag.ActiveForm = "register";
-                return View(HomeView, usuario);
-            }
-
-            try
-            {
-                await _usuarioService.Register(usuario);
-                TempData["SuccessMessage"] = "Usuário registrado com sucesso!";
-                return RedirectToAction("Index", "Home");
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = ex.Message;
-                ViewBag.ActiveForm = "register";
-                return View(HomeView, usuario);
-            }
-        }
-
-        public async Task<IActionResult> Perfil()
-        {
-            try
-            {
-                if (UserId == 0)
-                    return Unauthorized();
-
-                var usuario = await _usuarioService.GetUsuarioByIdAsync(UserId);
-                if (usuario == null)
-                    return NotFound();
-
-                return View(usuario);
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = ex.Message;
-                return RedirectToAction("Main", "Pages");
-            }
-        }
-
-        public async Task<IActionResult> EditarUsuario()
-        {
-            try
-            {
-                if (UserId == 0)
-                    return Unauthorized();
-
-                var usuario = await _usuarioService.GetUsuarioByIdAsync(UserId);
-                if (usuario == null)
-                    return NotFound();
-
-                var dto = new UsuarioDto
+                try
                 {
-                    Nome = usuario.Nome ?? string.Empty,
-                    Email = usuario.Email ?? string.Empty
-                };
-
-                return View(dto);
+                    await _usuarioService.RegistrarAsync(form);
+                    TempData["SuccessMessage"] = "Conta criada com sucesso! Faça login para começar.";
+                    return RedirectToAction("Index", "Home");
+                }
+                catch (RegraNegocioException ex)
+                {
+                    ModelState.AddModelError(nameof(form.Email), ex.Message);
+                }
             }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = ex.Message;
-                return RedirectToAction(nameof(Perfil));
-            }
-        }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateUsuario(UsuarioDto usuarioDto)
-        {
-            if (UserId == 0)
-                return Unauthorized();
-
-            if (!ModelState.IsValid)
-                return View("EditarUsuario", usuarioDto);
-
-            try
-            {
-                await _usuarioService.Editar(UserId, usuarioDto);
-                TempData["SuccessMessage"] = "Perfil atualizado com sucesso!";
-                return RedirectToAction(nameof(Perfil));
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = ex.Message;
-                return View("EditarUsuario", usuarioDto);
-            }
+            ViewBag.ActiveForm = "register";
+            return View(HomeView, form);
         }
 
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public IActionResult ForgotPassword(string email)
+        public IActionResult EsqueciSenha(string email)
         {
-            // aqui futuramente você:
-            // - valida email
-            // - gera token
-            // - envia email
-
+            // TODO: gerar token, enviar email com link de redefinição.
             ViewBag.ForgotMessage = "Se o email existir, enviaremos um link de recuperação.";
             ViewBag.ActiveForm = "forgot";
             return View(HomeView);
         }
 
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(Autenticacao.Esquema);
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 public abstract class BaseController : Controller
 {
+    /// <summary>Id do usuário logado (claim NameIdentifier). 0 se não houver login.</summary>
     protected int UserId
     {
         get
