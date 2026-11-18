@@ -66,16 +66,18 @@ if (!app.Environment.IsDevelopment())
 app.UseStatusCodePagesWithReExecute("/Home/Erro", "?codigo={0}");
 
 app.UseHttpsRedirection();
+// UseStaticFiles em vez de MapStaticAssets: com MapStaticAssets, um GET numa ação só-POST
+// (ex.: /Auth/Logout) responde 404 em vez de 405 (coberto por SegurancaTests).
+app.UseStaticFiles();
 app.UseRouting();
 
 // Autenticação antes da autorização
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}"
-).WithStaticAssets();
+);
 
 app.Run();

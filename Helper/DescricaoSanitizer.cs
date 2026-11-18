@@ -19,14 +19,18 @@ public static class DescricaoSanitizer
         return new HtmlSanitizer().Sanitize(html);
     }
 
-    /// <summary>Texto puro do HTML (sem tags, entidades decodificadas), opcionalmente truncado com "…".</summary>
+    /// <summary>
+    /// Texto puro do HTML (sem tags, entidades decodificadas), opcionalmente truncado com "…".
+    /// Sanitiza antes: o conteúdo de &lt;script&gt;/&lt;style&gt; de descrições antigas não vira texto.
+    /// </summary>
     public static string ParaTextoPlano(string? html, int? maximo = null)
     {
-        if (string.IsNullOrWhiteSpace(html))
+        var seguro = Sanitizar(html);
+        if (seguro.Length == 0)
             return string.Empty;
 
         // Quebras de bloco viram espaço para não grudar palavras de parágrafos diferentes.
-        var semTags = Regex.Replace(html, @"<\s*(br|/p|/li|/h\d|/div)[^>]*>", " ", RegexOptions.IgnoreCase);
+        var semTags = Regex.Replace(seguro, @"<\s*(br|/p|/li|/h\d|/div)[^>]*>", " ", RegexOptions.IgnoreCase);
         semTags = Regex.Replace(semTags, "<[^>]*>", string.Empty);
         var texto = Regex.Replace(WebUtility.HtmlDecode(semTags), @"\s+", " ").Trim();
 
