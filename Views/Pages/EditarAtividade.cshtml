@@ -12,7 +12,6 @@
                 <h3 class="text-center mb-4">Editar atividade</h3>
                 
                 <form method="post" asp-action="UpdateAtividade" asp-controller="Pages" asp-route-id="@Model.Id"> 
-                    @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
 
                     <div class="mb-3">
@@ -87,7 +86,8 @@
     });
 
     // 🔥 CARREGAR DESCRIÇÃO EXISTENTE
-    var descricaoExistente = `@Html.Raw(Model.Descricao ?? "")`;
+    // Json.Serialize gera uma string JS escapada: aspas, crases e </script> na descrição não quebram o script.
+    var descricaoExistente = @Json.Serialize(DescricaoSanitizer.Sanitizar(Model.Descricao));
     quill.root.innerHTML = descricaoExistente;
 
     // 🔥 AO SUBMETER, SALVAR O HTML

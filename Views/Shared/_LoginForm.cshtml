@@ -24,7 +24,12 @@
 
 
 
+@{
+    var returnUrl = (string?)ViewBag.ReturnUrl ?? Context.Request.Query["returnUrl"].ToString();
+}
+
 <form method="post" asp-action="Login" asp-controller="Auth">
+    <input type="hidden" name="returnUrl" value="@returnUrl" />
 
     <div class="mb-3">
         <label class="form-label">Email</label>

@@ -52,6 +52,8 @@ public class PagesController : BaseController
         return View(atividade);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeletarAtividade(int id)
     {
         try
@@ -82,18 +84,18 @@ public class PagesController : BaseController
         return View("EditarAtividade", atividade);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateAtividade(int id, Atividade atividade)
     {
+        if (UserId == 0)
+            return Unauthorized();
+
+        if (!ModelState.IsValid)
+            return View("EditarAtividade", atividade);
+
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return View(atividade);
-            }
-            
-            if (UserId == 0)
-                return Unauthorized();
-
             await _atividadeService.Editar(UserId, id, atividade);
             TempData["SuccessMessage"] = "Atividade editada com sucesso!";
             return RedirectToAction("Main");

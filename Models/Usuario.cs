@@ -30,7 +30,7 @@ namespace GestorAtividades.Models
         public string? Senha { get; set; }
 
         public string? SenhaHash { get; set; }
-        public DateTime DataRegistro { get; set; } = TimeHelper.NowInBrazil();
+        public DateTime DataRegistro { get; set; } = DateTime.UtcNow;
 
          public ICollection<Atividade> Atividades { get; set; } = new List<Atividade>();
     }

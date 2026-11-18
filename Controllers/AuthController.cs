@@ -1,21 +1,22 @@
 using GestorAtividades.Data;
 using GestorAtividades.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;        
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using GestorAtividades.Service;
 using Microsoft.AspNetCore.Authorization;
 using GestorAtividades.Dto;
 
 
-namespace GestorAtividades.Controllers 
+namespace GestorAtividades.Controllers
 {
 
     [Authorize(AuthenticationSchemes = "CookieAuth")]
     public class AuthController : BaseController
     {
+        // Login, cadastro e recuperação de senha ficam na Home (partials _LoginForm, _RegisterForm, _ForgotPasswordForm).
+        private const string HomeView = "~/Views/Home/Index.cshtml";
 
         private readonly ApplicationDbContext _context;
 
@@ -27,25 +28,37 @@ namespace GestorAtividades.Controllers
             _usuarioService = usuarioService;
         }
 
+        // Destino do LoginPath do cookie: quem acessa uma página protegida sem login cai aqui.
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult Login(string? returnUrl = null)
+        {
+            if (User.Identity?.IsAuthenticated == true)
+                return RedirectToAction("Main", "Pages");
+
+            return RedirectToAction("Index", "Home", new { returnUrl });
+        }
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(string email, string senha)
+        public async Task<IActionResult> Login(string email, string senha, string? returnUrl = null)
         {
             var user = await _context.Usuarios
                 .FirstOrDefaultAsync(x => x.Email == email);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(senha, user.SenhaHash))
+            if (user == null || user.SenhaHash == null || !BCrypt.Net.BCrypt.Verify(senha, user.SenhaHash))
             {
                 ViewBag.Error = "Credenciais inválidas!";
-                return View();
+                ViewBag.ReturnUrl = returnUrl;
+                return View(HomeView);
             }
 
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Nome),
-                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Name, user.Nome ?? string.Empty),
+                new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");
@@ -53,9 +66,14 @@ namespace GestorAtividades.Controllers
             await HttpContext.SignInAsync("CookieAuth",
                 new ClaimsPrincipal(claimsIdentity));
 
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return LocalRedirect(returnUrl);
+
             return RedirectToAction("Main", "Pages");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("CookieAuth");
@@ -68,7 +86,10 @@ namespace GestorAtividades.Controllers
         public async Task<IActionResult> CreateUsuario(Usuario usuario)
         {
             if (!ModelState.IsValid)
-                return View("Home", usuario);
+            {
+                ViewBag.ActiveForm = "register";
+                return View(HomeView, usuario);
+            }
 
             try
             {
@@ -79,11 +100,11 @@ namespace GestorAtividades.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
-                return View("Home");
+                ViewBag.ActiveForm = "register";
+                return View(HomeView, usuario);
             }
         }
 
-        [Authorize(AuthenticationSchemes = "CookieAuth")]
         public async Task<IActionResult> Perfil()
         {
             try
@@ -100,11 +121,10 @@ namespace GestorAtividades.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
-                return View("Login");
+                return RedirectToAction("Main", "Pages");
             }
         }
 
-        [Authorize(AuthenticationSchemes = "CookieAuth")]
         public async Task<IActionResult> EditarUsuario()
         {
             try
@@ -118,8 +138,8 @@ namespace GestorAtividades.Controllers
 
                 var dto = new UsuarioDto
                 {
-                    Nome = usuario.Nome,
-                    Email = usuario.Email
+                    Nome = usuario.Nome ?? string.Empty,
+                    Email = usuario.Email ?? string.Empty
                 };
 
                 return View(dto);
@@ -127,37 +147,37 @@ namespace GestorAtividades.Controllers
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
-                return View("Login");
+                return RedirectToAction(nameof(Perfil));
             }
-            
         }
 
-        [Authorize(AuthenticationSchemes = "CookieAuth")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateUsuario(UsuarioDto usuarioDto)
         {
+            if (UserId == 0)
+                return Unauthorized();
+
+            if (!ModelState.IsValid)
+                return View("EditarUsuario", usuarioDto);
+
             try
             {
-                if (!ModelState.IsValid)
-                    return View("EditarUsuario", usuarioDto);
-             
-                if (UserId == 0)
-                    return Unauthorized();
-
                 await _usuarioService.Editar(UserId, usuarioDto);
                 TempData["SuccessMessage"] = "Perfil atualizado com sucesso!";
                 return RedirectToAction(nameof(Perfil));
-                
             }
             catch (Exception ex)
             {
                 TempData["ErrorMessage"] = ex.Message;
-                return View("Login");
+                return View("EditarUsuario", usuarioDto);
             }
         }
 
-
-        public async Task<IActionResult> ForgotPassword(string email)
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult ForgotPassword(string email)
         {
             // aqui futuramente você:
             // - valida email
@@ -165,7 +185,8 @@ namespace GestorAtividades.Controllers
             // - envia email
 
             ViewBag.ForgotMessage = "Se o email existir, enviaremos um link de recuperação.";
-            return View("~/Views/Home/Index.cshtml");
+            ViewBag.ActiveForm = "forgot";
+            return View(HomeView);
         }
 
     }

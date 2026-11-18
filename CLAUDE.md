@@ -40,6 +40,10 @@ Flow is Controller → Service → `ApplicationDbContext` (no repository layer).
 
 **Validation:** two mechanisms coexist — `Usuario` uses DataAnnotations; `Atividade` is validated by `Validators/AtividadeValidator.cs` (FluentValidation, auto-registered from the assembly via `AddFluentValidation`). `Usuario.Senha` is `[NotMapped]`; only `SenhaHash` is persisted.
 
-**Dates/time zones:** `Helper/TimeHelper.cs` (global namespace) handles `America/Sao_Paulo`. Form inputs are treated as Brazil local time and converted with `TimeHelper.BrazilToUtc` before saving; DB columns are `timestamp with time zone` (configured in `ApplicationDbContext.OnModelCreating`), so Npgsql requires UTC `DateTime`s. Use `TimeHelper.UtcToBrazil` for display.
+**Dates/time zones:** `Helper/TimeHelper.cs` (global namespace) handles `America/Sao_Paulo`. Form inputs are treated as Brazil local time and converted with `TimeHelper.BrazilToUtc` before saving; DB columns are `timestamp with time zone` (configured in `ApplicationDbContext.OnModelCreating`), so Npgsql requires UTC `DateTime`s. Read methods in the services (`ListarPorUsuarioAsync`, `BuscarPorIdAsync`, `GetUsuarioByIdAsync`) load with `AsNoTracking` and already return dates converted to Brazil time, so views and edit forms use them as-is. `TimeHelper.NowInBrazil()` returns Brazil local time (for comparing with form input in validators) and must never be persisted; use `DateTime.UtcNow` for stored timestamps.
+
+**HTML descriptions:** `Descricao` holds HTML from the Quill editor. It is sanitized with `Helper/DescricaoSanitizer` (HtmlSanitizer) when saved and again when rendered with `Html.Raw`. In scripts, pass it via `@Json.Serialize(...)`, never inside a JS string literal.
+
+**State-changing actions** (`Logout`, `DeletarAtividade`, `UpdateAtividade`, `UpdateUsuario`, etc.) are `[HttpPost]` + `[ValidateAntiForgeryToken]`; links that trigger them must be forms.
 
 **Status:** `Enum/StatusAtividade.cs` (global namespace, `[Display]` names) is stored as a string via `HasConversion<string>()`. `Helper/GetColor.cs` provides the `GetColor()` extension that maps a status to Bootstrap badge classes used in views.

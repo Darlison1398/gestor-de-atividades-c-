@@ -28,16 +28,23 @@ namespace GestorAtividades.Service
                 Nome = model.Nome,
                 Email = model.Email,
                 SenhaHash = BCrypt.Net.BCrypt.HashPassword(model.Senha),
-                DataRegistro = TimeHelper.NowInBrazil()
+                DataRegistro = DateTime.UtcNow
             };
             _context.Usuarios.Add(user);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<Usuario> GetUsuarioByIdAsync(int userId)
+        /// <summary>Retorna o usuário com DataRegistro no horário de Brasília (somente leitura).</summary>
+        public async Task<Usuario?> GetUsuarioByIdAsync(int userId)
         {
-            return await _context.Usuarios
+            var usuario = await _context.Usuarios
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (usuario != null)
+                usuario.DataRegistro = TimeHelper.UtcToBrazil(usuario.DataRegistro);
+
+            return usuario;
         }
 
         public async Task Editar(int userId, UsuarioDto usuarioDto)

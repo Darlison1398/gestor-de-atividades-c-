@@ -20,7 +20,7 @@
 
                 <h5>Descrição</h5>
                 <div class="mt-3">
-                    @Html.Raw(Model.Descricao)
+                    @Html.Raw(DescricaoSanitizer.Sanitizar(Model.Descricao))
                 </div>
             </div>
 

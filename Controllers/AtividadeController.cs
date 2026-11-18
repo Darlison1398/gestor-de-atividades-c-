@@ -1,12 +1,14 @@
 using GestorAtividades.Data;
 using GestorAtividades.Models;
 using GestorAtividades.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace GestorAtividades.Controllers
 {
+    [Authorize]
     public class AtividadeController : Controller
     {
         private readonly AtividadeService _atividadeService;
@@ -19,13 +21,9 @@ namespace GestorAtividades.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> CriarAtividade (Atividade atividade)
         {
-            foreach (var e in ModelState.Values.SelectMany(v => v.Errors))
-            {
-                Console.WriteLine(e.ErrorMessage);
-            }
-
             try
             {
                 var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);

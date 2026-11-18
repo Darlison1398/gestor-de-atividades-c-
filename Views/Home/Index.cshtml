@@ -1,4 +1,5 @@
-﻿@{
+﻿@model GestorAtividades.Models.Usuario
+@{
     ViewData["Title"] = "Home";
 }
 
@@ -61,4 +62,9 @@
         document.getElementById('registerBox').style.display = 'none';
         document.getElementById('forgotBox').style.display = 'none';
     }
+
+    // Reabre o formulário que gerou a resposta (erro de cadastro, mensagem de recuperação de senha).
+    var formularioAtivo = '@(ViewBag.ActiveForm ?? "login")';
+    if (formularioAtivo === 'register') showRegister();
+    else if (formularioAtivo === 'forgot') showForgot();
 </script>

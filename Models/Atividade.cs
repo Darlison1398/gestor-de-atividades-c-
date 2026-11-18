@@ -21,7 +21,7 @@ namespace GestorAtividades.Models
         public DateTime DataConclusao { get; set;}
         public string Descricao { get; set;}
         public StatusAtividade Status { get; set;}
-        public DateTime DataRegistro { get; set; } = TimeHelper.NowInBrazil();
+        public DateTime DataRegistro { get; set; } = DateTime.UtcNow;
         public int UserId { get; set; } 
 
         [ValidateNever]
