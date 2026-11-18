@@ -27,12 +27,6 @@ namespace GestorAtividades.Controllers
             _usuarioService = usuarioService;
         }
 
-        /*[AllowAnonymous]
-        public IActionResult Login()
-        {
-            return View();
-        }*/
-
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -67,12 +61,6 @@ namespace GestorAtividades.Controllers
             await HttpContext.SignOutAsync("CookieAuth");
             return RedirectToAction("Index", "Home");
         }
-
-        /*[AllowAnonymous]
-        public IActionResult CreateUser()
-        {
-            return View();
-        }*/
 
         [HttpPost]
         [AllowAnonymous]
