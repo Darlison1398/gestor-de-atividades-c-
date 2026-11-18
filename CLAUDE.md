@@ -18,7 +18,16 @@ dotnet ef migrations add <Nome>
 dotnet ef database update
 ```
 
-There is no test project and no linter configured. `dotnet ef migrations has-pending-model-changes` confirms an entity change didn't alter the schema.
+```bash
+# Tests (xUnit, tests/GestorAtividades.Tests) — require Docker: Testcontainers starts a throwaway postgres:16-alpine
+dotnet test tests/GestorAtividades.Tests
+dotnet test tests/GestorAtividades.Tests --filter "FullyQualifiedName~AtividadeServiceTests"          # one class
+dotnet test tests/GestorAtividades.Tests --filter "FullyQualifiedName~Busca_ignora_maiusculas"       # one test
+```
+
+No linter is configured. `dotnet ef migrations has-pending-model-changes` confirms an entity change didn't alter the schema.
+
+**Tests layout:** `Unidade/` (no DB: `Prazo`, `DescricaoSanitizer`, validators, `TimeHelper`, `FiltroAtividades`), `Servicos/` (services and the `DatasAtividadeSemHora` migration against real PostgreSQL), `Integracao/` (HTTP via `WebApplicationFactory`: auth redirects, antiforgery, POST-only actions, ownership, open-redirect). `Infra/BancoFixture` starts one container per run and applies migrations; tests share it through `[Collection(BancoCollection.Nome)]` and stay independent by creating their own users (`Dados.EmailUnico()`). `Infra/AppFactory` replaces the `DbContext` registration so integration tests never touch the development database from `appsettings.json`. Real PostgreSQL is required because the code relies on `ILike`, `date` columns and `ExecuteUpdate/Delete`, which in-memory providers don't support. The web `.csproj` excludes `tests/**` from compilation (the test project lives inside its folder).
 
 The connection string `DefaultConnection` lives in `appsettings.json` and points to a local PostgreSQL (`localhost:5432`, database `dbgetoratividadeslocal`).
 
@@ -56,7 +65,7 @@ Flow is Controller → Service → `ApplicationDbContext` (no repository layer).
 
 **Status:** `Enum/StatusAtividade.cs` (global namespace, `[Display]` names) is stored as a string via `HasConversion<string>()`. `Helper/GetColor.cs` provides `GetColor()` (full Bootstrap badge classes, including `badge`) and `GetDisplayName()`.
 
-**Static files** are served with `MapStaticAssets()` / `.WithStaticAssets()` (not `UseStaticFiles`).
+**Static files** are served with `UseStaticFiles()`, not `MapStaticAssets()`: with `MapStaticAssets`, GET on a POST-only action returns 404 instead of 405 (asserted in `SegurancaTests`).
 
 ## Front-end
 
