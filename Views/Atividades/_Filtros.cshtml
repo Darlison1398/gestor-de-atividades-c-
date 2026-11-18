@@ -1,0 +1,55 @@
+@model PainelAtividadesViewModel
+@*
+    Busca e filtros (GET na própria página). Os selects enviam o formulário ao mudar (atividades.js);
+    o botão de busca garante o funcionamento sem JavaScript.
+*@
+@{
+    var f = Model.Filtro;
+}
+
+<div class="mb-4">
+    <form method="get" asp-action="Index" class="barra-filtros d-flex flex-wrap gap-2 flex-grow-1" role="search" data-filtros>
+        @if (!f.EhQuadro)
+        {
+            <input type="hidden" name="visao" value="@FiltroAtividades.VisaoLista" />
+        }
+
+        <div class="input-group busca">
+            <span class="input-group-text bg-body"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span>
+            <input type="search" class="form-control" name="q" value="@f.Q" placeholder="Buscar pelo título" aria-label="Buscar pelo título" />
+            <button class="btn btn-outline-secondary" type="submit">Buscar</button>
+        </div>
+
+        <select class="form-select w-auto" name="situacao" aria-label="Filtrar por prazo" data-auto-envio>
+            <option value="">Qualquer prazo</option>
+            <option value="atrasadas" selected="@(f.Situacao == "atrasadas")">Atrasadas</option>
+            <option value="hoje" selected="@(f.Situacao == "hoje")">Vencem hoje</option>
+            <option value="semana" selected="@(f.Situacao == "semana")">Vencem em 7 dias</option>
+        </select>
+
+        @if (!f.EhQuadro)
+        {
+            <select class="form-select w-auto" name="status" aria-label="Filtrar por status" data-auto-envio>
+                <option value="">Todos os status</option>
+                @foreach (var s in Enum.GetValues<StatusAtividade>())
+                {
+                    <option value="@s" selected="@(f.Status == s)">@s.GetDisplayName()</option>
+                }
+            </select>
+        }
+
+        <select class="form-select w-auto" name="ordem" aria-label="Ordenar" data-auto-envio>
+            <option value="">Ordenar por prazo</option>
+            <option value="recentes" selected="@(f.Ordem == "recentes")">Mais recentes</option>
+            <option value="titulo" selected="@(f.Ordem == "titulo")">Título (A–Z)</option>
+        </select>
+
+        @if (f.TemFiltro || f.Ordem != null)
+        {
+            <a class="btn btn-link text-body-secondary px-2" asp-action="Index" asp-route-visao="@(f.EhQuadro ? null : FiltroAtividades.VisaoLista)">
+                <i class="fa-solid fa-xmark me-1" aria-hidden="true"></i>Limpar
+            </a>
+        }
+    </form>
+
+</div>

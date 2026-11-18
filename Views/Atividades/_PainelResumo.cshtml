@@ -1,0 +1,35 @@
+@model PainelAtividadesViewModel
+@*
+    Indicadores de todas as atividades do usuário. Cada bloco é um atalho de filtro;
+    o bloco do filtro ativo fica destacado. Atualizado via fetch pelo atividades.js (#painel-resumo).
+*@
+@{
+    var r = Model.Resumo;
+    var f = Model.Filtro;
+    var concluidasAtivo = !f.EhQuadro && f.Status == StatusAtividade.Concluido && f.Situacao == null;
+
+    var blocos = new[]
+    {
+        new { Rotulo = "Em aberto", Valor = r.Abertas, Icone = "fa-regular fa-folder-open", Classe = "",
+              Rota = f.ComoRota(new { situacao = "", status = "" }), Ativo = !f.TemFiltro },
+        new { Rotulo = "Atrasadas", Valor = r.Atrasadas, Icone = "fa-solid fa-triangle-exclamation", Classe = r.Atrasadas > 0 ? "bloco-alerta" : "",
+              Rota = f.ComoRota(new { situacao = "atrasadas", status = "" }), Ativo = f.Situacao == "atrasadas" },
+        new { Rotulo = "Vencem em 7 dias", Valor = r.VencemNaSemana, Icone = "fa-regular fa-clock", Classe = "",
+              Rota = f.ComoRota(new { situacao = "semana", status = "" }), Ativo = f.Situacao == "semana" },
+        new { Rotulo = "Concluídas", Valor = r.Concluidas, Icone = "fa-solid fa-circle-check", Classe = "",
+              Rota = f.ComoRota(new { visao = FiltroAtividades.VisaoLista, situacao = "", status = StatusAtividade.Concluido.ToString() }), Ativo = concluidasAtivo },
+    };
+}
+
+<div class="row row-cols-2 row-cols-lg-4 g-3 mb-4" role="list" aria-label="Resumo das atividades">
+    @foreach (var b in blocos)
+    {
+        <div class="col" role="listitem">
+            <a class="bloco-indicador @b.Classe @(b.Ativo ? "ativo" : "")" asp-action="Index" asp-all-route-data="b.Rota"
+               aria-current="@(b.Ativo ? "true" : "false")">
+                <span class="rotulo"><i class="@b.Icone me-2" aria-hidden="true"></i>@b.Rotulo</span>
+                <span class="valor">@b.Valor</span>
+            </a>
+        </div>
+    }
+</div>

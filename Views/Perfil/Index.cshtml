@@ -1,0 +1,76 @@
+@model PerfilViewModel
+
+@{
+    ViewData["Title"] = "Meu perfil";
+    var partes = Model.Nome.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    var iniciais = partes.Length switch
+    {
+        0 => "?",
+        1 => partes[0][..1].ToUpperInvariant(),
+        _ => (partes[0][..1] + partes[^1][..1]).ToUpperInvariant()
+    };
+    var r = Model.Resumo;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <div class="card card-app">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex flex-column flex-sm-row align-items-center gap-3 text-center text-sm-start mb-4">
+                    <span class="avatar avatar-lg" aria-hidden="true">@iniciais</span>
+                    <div class="flex-grow-1" style="min-width: 0;">
+                        <h1 class="h4 fw-bold mb-1">@Model.Nome</h1>
+                        <p class="text-body-secondary text-break mb-0">@Model.Email</p>
+                        <p class="small text-body-secondary mb-0">Membro desde @Model.DataRegistro.ToString("dd/MM/yyyy")</p>
+                    </div>
+                    <a asp-action="Editar" class="btn btn-outline-primary text-nowrap flex-shrink-0">
+                        <i class="fa-solid fa-pen me-1" aria-hidden="true"></i>Editar perfil
+                    </a>
+                </div>
+
+                <h2 class="h6 text-body-secondary text-uppercase small fw-semibold border-top pt-4 mb-3">Suas atividades</h2>
+
+                @if (r.Total == 0)
+                {
+                    <p class="text-body-secondary mb-0">
+                        Você ainda não tem atividades. <a asp-controller="Atividades" asp-action="Criar">Criar a primeira</a>
+                    </p>
+                }
+                else
+                {
+                    <div class="row row-cols-2 row-cols-md-4 g-3 mb-4">
+                        <div class="col">
+                            <a class="bloco-indicador" asp-controller="Atividades" asp-action="Index">
+                                <span class="rotulo">Total</span><span class="valor">@r.Total</span>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a class="bloco-indicador" asp-controller="Atividades" asp-action="Index">
+                                <span class="rotulo">Em aberto</span><span class="valor">@r.Abertas</span>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a class="bloco-indicador @(r.Atrasadas > 0 ? "bloco-alerta" : "")" asp-controller="Atividades" asp-action="Index" asp-route-situacao="atrasadas">
+                                <span class="rotulo">Atrasadas</span><span class="valor">@r.Atrasadas</span>
+                            </a>
+                        </div>
+                        <div class="col">
+                            <a class="bloco-indicador" asp-controller="Atividades" asp-action="Index" asp-route-visao="lista" asp-route-status="Concluido">
+                                <span class="rotulo">Concluídas</span><span class="valor">@r.Concluidas</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between small mb-2">
+                        <span id="rotulo-conclusao" class="fw-medium">Taxa de conclusão</span>
+                        <span class="text-body-secondary">@r.Concluidas de @r.Total · <strong class="text-body">@r.TaxaConclusao%</strong></span>
+                    </div>
+                    <div class="progress medidor" role="progressbar" aria-labelledby="rotulo-conclusao"
+                         aria-valuenow="@r.TaxaConclusao" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" style="width: @r.TaxaConclusao%"></div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

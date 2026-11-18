@@ -1,10 +1,15 @@
 using GestorAtividades.Data;
 using GestorAtividades.Helper;
 using GestorAtividades.Models;
+using GestorAtividades.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace GestorAtividades.Service
 {
+    /// <summary>
+    /// Toda consulta filtra por UserId: um usuário só enxerga e altera as próprias atividades.
+    /// Datas de início/conclusão são DateOnly e passam direto; DataRegistro é UTC no banco e Brasília na saída.
+    /// </summary>
     public class AtividadeService
     {
         private readonly ApplicationDbContext _context;
@@ -14,87 +19,181 @@ namespace GestorAtividades.Service
             _context = context;
         }
 
-        public async Task Register(int userId, Atividade atividade)
+        /// <summary>Atividades filtradas e ordenadas + resumo de todas as atividades do usuário.</summary>
+        public async Task<PainelAtividadesViewModel> ListarAsync(int userId, FiltroAtividades filtro)
         {
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == userId);
+            var hoje = TimeHelper.HojeNoBrasil();
+            var query = _context.Atividades.AsNoTracking().Where(a => a.UserId == userId);
 
-            if (usuario == null)
-                throw new Exception("Usuário não encontrado.");
-
-            var nova = new Atividade
+            if (!string.IsNullOrWhiteSpace(filtro.Q))
             {
+                var termo = "%" + EscaparLike(filtro.Q.Trim()) + "%";
+                query = query.Where(a => EF.Functions.ILike(a.Titulo, termo, @"\"));
+            }
+
+            // No quadro cada status é uma coluna, então o filtro de status só vale na lista.
+            if (!filtro.EhQuadro && filtro.Status is StatusAtividade status)
+                query = query.Where(a => a.Status == status);
+
+            var limiteSemana = hoje.AddDays(Prazo.DiasEmBreve);
+            query = filtro.Situacao switch
+            {
+                "atrasadas" => query.Where(a => a.Status != StatusAtividade.Concluido && a.DataConclusao < hoje),
+                "hoje" => query.Where(a => a.Status != StatusAtividade.Concluido && a.DataConclusao == hoje),
+                "semana" => query.Where(a => a.Status != StatusAtividade.Concluido && a.DataConclusao >= hoje && a.DataConclusao <= limiteSemana),
+                _ => query
+            };
+
+            query = filtro.Ordem switch
+            {
+                "recentes" => query.OrderByDescending(a => a.DataRegistro),
+                "titulo" => query.OrderBy(a => a.Titulo),
+                // Padrão: não concluídas primeiro, depois o prazo mais próximo.
+                _ => query.OrderBy(a => a.Status == StatusAtividade.Concluido).ThenBy(a => a.DataConclusao).ThenBy(a => a.Titulo)
+            };
+
+            var atividades = await query.ToListAsync();
+
+            return new PainelAtividadesViewModel
+            {
+                Filtro = filtro,
+                Resumo = await ObterResumoAsync(userId),
+                Atividades = atividades.Select(a => ParaViewModel(a, hoje)).ToList()
+            };
+        }
+
+        /// <summary>Contagens de todas as atividades do usuário (uma consulta agrupada por status).</summary>
+        public async Task<ResumoAtividades> ObterResumoAsync(int userId)
+        {
+            var hoje = TimeHelper.HojeNoBrasil();
+            var limiteSemana = hoje.AddDays(Prazo.DiasEmBreve);
+
+            var grupos = await _context.Atividades
+                .Where(a => a.UserId == userId)
+                .GroupBy(a => a.Status)
+                .Select(g => new
+                {
+                    Status = g.Key,
+                    Total = g.Count(),
+                    Atrasadas = g.Count(a => a.DataConclusao < hoje),
+                    Hoje = g.Count(a => a.DataConclusao == hoje),
+                    Semana = g.Count(a => a.DataConclusao >= hoje && a.DataConclusao <= limiteSemana)
+                })
+                .ToListAsync();
+
+            var abertas = grupos.Where(g => g.Status != StatusAtividade.Concluido).ToList();
+
+            return new ResumoAtividades
+            {
+                Total = grupos.Sum(g => g.Total),
+                Concluidas = grupos.Where(g => g.Status == StatusAtividade.Concluido).Sum(g => g.Total),
+                Atrasadas = abertas.Sum(g => g.Atrasadas),
+                VencemHoje = abertas.Sum(g => g.Hoje),
+                VencemNaSemana = abertas.Sum(g => g.Semana),
+                PorStatus = Enum.GetValues<StatusAtividade>()
+                    .ToDictionary(s => s, s => grupos.FirstOrDefault(g => g.Status == s)?.Total ?? 0)
+            };
+        }
+
+        public async Task<AtividadeViewModel?> ObterAsync(int userId, int id)
+        {
+            var atividade = await BuscarAsync(userId, id);
+            return atividade == null ? null : ParaViewModel(atividade, TimeHelper.HojeNoBrasil());
+        }
+
+        public async Task<AtividadeFormViewModel?> ObterParaEdicaoAsync(int userId, int id)
+        {
+            var atividade = await BuscarAsync(userId, id);
+            if (atividade == null)
+                return null;
+
+            return new AtividadeFormViewModel
+            {
+                Id = atividade.Id,
                 Titulo = atividade.Titulo,
                 Descricao = DescricaoSanitizer.Sanitizar(atividade.Descricao),
-                DataInicio = TimeHelper.BrazilToUtc(atividade.DataInicio),
-                DataConclusao = TimeHelper.BrazilToUtc(atividade.DataConclusao),
+                Status = atividade.Status,
+                DataInicio = atividade.DataInicio,
+                DataConclusao = atividade.DataConclusao
+            };
+        }
+
+        public async Task CriarAsync(int userId, AtividadeFormViewModel form)
+        {
+            _context.Atividades.Add(new Atividade
+            {
+                Titulo = form.Titulo.Trim(),
+                Descricao = DescricaoSanitizer.Sanitizar(form.Descricao),
+                DataInicio = form.DataInicio,
+                DataConclusao = form.DataConclusao,
                 DataRegistro = DateTime.UtcNow,
                 Status = StatusAtividade.Pendente,
                 UserId = userId
-            };
+            });
 
-            _context.Atividades.Add(nova);
             await _context.SaveChangesAsync();
         }
 
-        public async Task Deletar(int userId, int id)
+        /// <returns>false se a atividade não existe ou não pertence ao usuário.</returns>
+        public async Task<bool> EditarAsync(int userId, int id, AtividadeFormViewModel form)
         {
             var atividade = await _context.Atividades
                 .FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
 
             if (atividade == null)
-                throw new Exception("Atividade não encontrada ou usuário sem permissão.");
+                return false;
 
-            _context.Atividades.Remove(atividade);
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task Editar(int userId, int id, Atividade newAtividade)
-        {
-            var atividade = await _context.Atividades.FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
-
-            if (atividade == null)
-                throw new Exception("Atividade não encontrada, ou usuário sem permissão para editar");
-
-            atividade.Titulo = newAtividade.Titulo;
-            atividade.DataInicio = TimeHelper.BrazilToUtc(newAtividade.DataInicio);
-            atividade.DataConclusao = TimeHelper.BrazilToUtc(newAtividade.DataConclusao);
-            atividade.Status = newAtividade.Status;
-            atividade.Descricao = DescricaoSanitizer.Sanitizar(newAtividade.Descricao);
+            atividade.Titulo = form.Titulo.Trim();
+            atividade.Descricao = DescricaoSanitizer.Sanitizar(form.Descricao);
+            atividade.Status = form.Status;
+            atividade.DataInicio = form.DataInicio;
+            atividade.DataConclusao = form.DataConclusao;
 
             await _context.SaveChangesAsync();
+            return true;
         }
 
-        /// <summary>Retorna as atividades com as datas já no horário de Brasília (somente leitura).</summary>
-        public async Task<List<Atividade>> ListarPorUsuarioAsync(int userId)
+        /// <summary>Usado pelo quadro (arrastar entre colunas e menu "Mover para").</summary>
+        /// <returns>false se a atividade não existe ou não pertence ao usuário.</returns>
+        public async Task<bool> AlterarStatusAsync(int userId, int id, StatusAtividade status)
         {
-            var atividades = await _context.Atividades
-                .Where(a => a.UserId == userId)
+            var alteradas = await _context.Atividades
+                .Where(a => a.Id == id && a.UserId == userId)
+                .ExecuteUpdateAsync(s => s.SetProperty(a => a.Status, status));
+
+            return alteradas > 0;
+        }
+
+        /// <returns>false se a atividade não existe ou não pertence ao usuário.</returns>
+        public async Task<bool> ExcluirAsync(int userId, int id)
+        {
+            var removidas = await _context.Atividades
+                .Where(a => a.Id == id && a.UserId == userId)
+                .ExecuteDeleteAsync();
+
+            return removidas > 0;
+        }
+
+        private Task<Atividade?> BuscarAsync(int userId, int id) =>
+            _context.Atividades
                 .AsNoTracking()
-                .ToListAsync();
+                .FirstOrDefaultAsync(a => a.Id == id && a.UserId == userId);
 
-            atividades.ForEach(ParaHorarioBrasil);
-            return atividades;
-        }
+        // Escapa os curingas do LIKE para que "%" e "_" digitados na busca sejam literais.
+        private static string EscaparLike(string texto) =>
+            texto.Replace(@"\", @"\\").Replace("%", @"\%").Replace("_", @"\_");
 
-        /// <summary>Retorna a atividade com as datas já no horário de Brasília (somente leitura).</summary>
-        public async Task<Atividade?> BuscarPorIdAsync(int userId, int atividadeId)
+        private static AtividadeViewModel ParaViewModel(Atividade atividade, DateOnly hoje) => new()
         {
-            var atividade = await _context.Atividades
-                .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.Id == atividadeId && a.UserId == userId);
-
-            if (atividade != null)
-                ParaHorarioBrasil(atividade);
-
-            return atividade;
-        }
-
-        // As entidades são carregadas com AsNoTracking, então alterar as datas aqui não afeta o banco.
-        private static void ParaHorarioBrasil(Atividade atividade)
-        {
-            atividade.DataInicio = TimeHelper.UtcToBrazil(atividade.DataInicio);
-            atividade.DataConclusao = TimeHelper.UtcToBrazil(atividade.DataConclusao);
-            atividade.DataRegistro = TimeHelper.UtcToBrazil(atividade.DataRegistro);
-        }
+            Id = atividade.Id,
+            Titulo = atividade.Titulo,
+            DescricaoHtml = DescricaoSanitizer.Sanitizar(atividade.Descricao),
+            Resumo = DescricaoSanitizer.ParaTextoPlano(atividade.Descricao, 160),
+            Status = atividade.Status,
+            DataInicio = atividade.DataInicio,
+            DataConclusao = atividade.DataConclusao,
+            DataRegistro = TimeHelper.UtcToBrazil(atividade.DataRegistro),
+            Prazo = Prazo.Calcular(atividade.DataConclusao, atividade.Status, hoje)
+        };
     }
 }

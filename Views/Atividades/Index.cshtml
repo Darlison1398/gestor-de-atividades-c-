@@ -1,0 +1,125 @@
+@model PainelAtividadesViewModel
+
+@{
+    ViewData["Title"] = "Minhas atividades";
+    var f = Model.Filtro;
+    var primeiroNome = (User.Identity?.Name ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+    var urlAtual = Context.Request.Path + Context.Request.QueryString;
+    var rotaQuadro = f.ComoRota(new { visao = "", status = "" });
+    var rotaLista = f.ComoRota(new { visao = FiltroAtividades.VisaoLista });
+}
+
+<div class="cabecalho-pagina">
+    <div>
+        <h1>Minhas atividades</h1>
+        <p class="text-body-secondary mb-0">
+            @(primeiroNome != null ? $"Olá, {primeiroNome}! " : "")@(Model.Resumo.Atrasadas switch
+            {
+                _ when Model.Resumo.Total == 0 => "Comece criando sua primeira atividade.",
+                0 => "Nenhuma atividade atrasada. Bom trabalho!",
+                1 => "Uma atividade está atrasada.",
+                var n => $"{n} atividades estão atrasadas."
+            })
+        </p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        @if (Model.Resumo.Total > 0)
+        {
+            <div class="btn-group" role="group" aria-label="Modo de visualização">
+                <a class="btn btn-outline-secondary @(f.EhQuadro ? "active" : "")" aria-current="@(f.EhQuadro ? "page" : "false")"
+                   asp-action="Index" asp-all-route-data="rotaQuadro">
+                    <i class="fa-solid fa-table-columns me-1" aria-hidden="true"></i>Quadro
+                </a>
+                <a class="btn btn-outline-secondary @(!f.EhQuadro ? "active" : "")" aria-current="@(!f.EhQuadro ? "page" : "false")"
+                   asp-action="Index" asp-all-route-data="rotaLista">
+                    <i class="fa-solid fa-list me-1" aria-hidden="true"></i>Lista
+                </a>
+            </div>
+        }
+        <a asp-action="Criar" class="btn btn-primary">
+            <i class="fa-solid fa-plus me-1" aria-hidden="true"></i>Nova atividade
+        </a>
+    </div>
+</div>
+
+@if (Model.Resumo.Total == 0)
+{
+    <div class="card card-app">
+        <div class="card-body estado-vazio">
+            <div class="icone mb-3" aria-hidden="true"><i class="fa-regular fa-clipboard"></i></div>
+            <h2 class="h5">Nenhuma atividade por aqui</h2>
+            <p class="text-body-secondary">Crie uma atividade com prazo e descrição para começar a acompanhar.</p>
+            <a asp-action="Criar" class="btn btn-primary">Criar primeira atividade</a>
+        </div>
+    </div>
+}
+else
+{
+    @* Token usado pelo atividades.js nas chamadas fetch (arrastar no quadro / mover pelo menu). *@
+    <div id="token-atividades" hidden>@Html.AntiForgeryToken()</div>
+
+    <section id="painel-resumo" aria-label="Indicadores">
+        <partial name="_PainelResumo" model="Model" />
+    </section>
+
+    <partial name="_Filtros" model="Model" />
+
+    <section id="area-atividades" aria-live="polite" data-visao="@(f.EhQuadro ? "quadro" : "lista")">
+        @if (f.TemFiltro && !Model.Atividades.Any())
+        {
+            <div class="card card-app">
+                <div class="card-body estado-vazio py-4">
+                    <div class="icone mb-2" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <h2 class="h6">Nenhuma atividade encontrada</h2>
+                    <p class="text-body-secondary small mb-3">Tente outro termo de busca ou remova os filtros.</p>
+                    <a class="btn btn-outline-secondary btn-sm" asp-action="Index" asp-route-visao="@(f.EhQuadro ? null : FiltroAtividades.VisaoLista)">Limpar filtros</a>
+                </div>
+            </div>
+        }
+        else if (f.EhQuadro)
+        {
+            <div class="quadro" aria-label="Quadro de atividades por status">
+                @foreach (var status in Enum.GetValues<StatusAtividade>())
+                {
+                    var daColuna = Model.DoStatus(status).ToList();
+                    <section class="coluna" data-coluna="@status" aria-labelledby="coluna-@status">
+                        <header class="coluna-cabecalho">
+                            <h2 class="h6 mb-0" id="coluna-@status">
+                                <span class="ponto-status ponto-@status.ToString().ToLowerInvariant()" aria-hidden="true"></span>@status.GetDisplayName()
+                            </h2>
+                            <span class="contagem" aria-label="@daColuna.Count atividade(s)">@daColuna.Count</span>
+                        </header>
+                        <div class="coluna-cards" data-soltar="@status">
+                            @foreach (var atividade in daColuna)
+                            {
+                                <partial name="_AtividadeCard" model="atividade"
+                                         view-data='new ViewDataDictionary(ViewData) { ["Arrastavel"] = true, ["ReturnUrl"] = urlAtual }' />
+                            }
+                            <div class="coluna-vazia" @(daColuna.Any() ? "hidden" : "")>
+                                @(f.TemFiltro ? "Nada com esses filtros" : "Arraste uma atividade para cá")
+                            </div>
+                        </div>
+                    </section>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+                @foreach (var atividade in Model.Atividades)
+                {
+                    <div class="col">
+                        <partial name="_AtividadeCard" model="atividade"
+                                 view-data='new ViewDataDictionary(ViewData) { ["MostrarStatus"] = true, ["ReturnUrl"] = urlAtual }' />
+                    </div>
+                }
+            </div>
+        }
+    </section>
+
+    <partial name="_ConfirmarExclusao" />
+}
+
+@section Scripts {
+    <script src="~/js/atividades.js" asp-append-version="true"></script>
+}
