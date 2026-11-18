@@ -1,8 +1,8 @@
 /// <summary>
 /// Convenção de datas do projeto:
-/// - No banco (timestamp with time zone) tudo é gravado em UTC.
-/// - Formulários e telas trabalham no horário de Brasília.
-/// Converta com BrazilToUtc antes de salvar e com UtcToBrazil antes de exibir.
+/// - Datas da atividade (início/conclusão) são DateOnly: sem hora e sem fuso.
+/// - Instantes (DataRegistro) são gravados em UTC (timestamp with time zone) e exibidos no horário de Brasília
+///   com UtcToBrazil. "Hoje" é sempre o dia de Brasília (HojeNoBrasil), não o do servidor.
 /// </summary>
 public static class TimeHelper
 {
@@ -14,6 +14,9 @@ public static class TimeHelper
     {
         return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, BrasilTZ);
     }
+
+    /// <summary>Data de hoje no horário de Brasília.</summary>
+    public static DateOnly HojeNoBrasil() => DateOnly.FromDateTime(NowInBrazil());
 
     public static DateTime BrazilToUtc(DateTime date)
     {

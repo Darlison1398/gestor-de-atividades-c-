@@ -26,13 +26,7 @@ namespace GestorAtividades.Data
                 .Property(a => a.DataRegistro)
                 .HasColumnType("timestamp with time zone");
 
-            modelBuilder.Entity<Atividade>()
-                .Property(a => a.DataInicio)
-                .HasColumnType("timestamp with time zone");
-
-            modelBuilder.Entity<Atividade>()
-                .Property(a => a.DataConclusao)
-                .HasColumnType("timestamp with time zone");
+            // DataInicio e DataConclusao são DateOnly → coluna "date" (convenção do Npgsql).
         }
 
 
