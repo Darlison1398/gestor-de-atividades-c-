@@ -1,0 +1,34 @@
+@model AtividadeFormViewModel
+
+@{
+    ViewData["Title"] = "Nova atividade";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <nav aria-label="Trilha de navegação" class="mb-3">
+            <ol class="breadcrumb small mb-0">
+                <li class="breadcrumb-item"><a asp-action="Index">Minhas atividades</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Nova atividade</li>
+            </ol>
+        </nav>
+
+        <div class="card card-app">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h3 fw-bold mb-1">Nova atividade</h1>
+                <p class="text-body-secondary mb-4">Defina o que precisa ser feito e o prazo.</p>
+                <partial name="_AtividadeForm" model="Model" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" crossorigin="anonymous" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js" crossorigin="anonymous"></script>
+    <script src="~/js/atividade-form.js" asp-append-version="true"></script>
+}

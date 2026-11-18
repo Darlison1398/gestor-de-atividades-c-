@@ -1,70 +1,101 @@
-﻿@model GestorAtividades.Models.Usuario
+@model RegistrarUsuarioViewModel
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Início";
+    ViewData["OcultarEntrar"] = true;
+    // Qual painel abrir: "login" (padrão), "register" após erro no cadastro, "forgot" após pedir recuperação.
+    var painelAtivo = (string?)ViewBag.ActiveForm ?? "login";
+    var veioDeRedirecionamento = !string.IsNullOrEmpty(Context.Request.Query["returnUrl"]);
 }
 
-<div class="container mt-5">
-    <div class="text-center mb-4">
-        <h1 class="display-5">Bem-vindo 👋</h1>
-        <p>
-            Crie e gerencie suas atividades.
-            Basta fazer o login ou criar sua conta para começar.
+<div class="row align-items-center g-5 py-md-4">
+    <section class="col-lg-6 hero" aria-labelledby="titulo-hero">
+        <span class="badge text-bg-primary bg-opacity-10 text-primary-emphasis mb-3">Organize seu dia</span>
+        <h1 id="titulo-hero" class="display-5 mb-3">Suas atividades, do planejamento à conclusão.</h1>
+        <p class="lead text-body-secondary mb-4">
+            Organize tarefas em um quadro por etapa, veja na hora o que está atrasado ou vence hoje e
+            acompanhe tudo até a conclusão.
         </p>
-    </div>
 
-    <div class="row justify-content-center">
-        <div class="col-md-4">
+        @* Prévia ilustrativa (decorativa) do quadro de atividades. *@
+        <div class="previa-app d-none d-md-block" aria-hidden="true">
+            <div class="barra"><span></span><span></span><span></span></div>
+            <div class="colunas">
+                <div>
+                    <div class="titulo-coluna"><span class="ponto-status ponto-pendente"></span>Pendente</div>
+                    <div class="mini-card">
+                        <span class="prazo prazo-atrasada"><i class="fa-solid fa-triangle-exclamation"></i>Atrasada há 1 dia</span>
+                        <div class="nome">Enviar relatório mensal</div>
+                        <div class="linha" style="width: 90%"></div><div class="linha" style="width: 60%"></div>
+                    </div>
+                    <div class="mini-card">
+                        <span class="prazo prazo-normal"><i class="fa-regular fa-calendar"></i>Vence em 28/11</span>
+                        <div class="nome">Planejar sprint</div>
+                        <div class="linha" style="width: 75%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="titulo-coluna"><span class="ponto-status ponto-emdesenvolvimento"></span>Em Desenvolvimento</div>
+                    <div class="mini-card">
+                        <span class="prazo prazo-hoje"><i class="fa-solid fa-hourglass-half"></i>Vence hoje</span>
+                        <div class="nome">Revisar contrato</div>
+                        <div class="linha" style="width: 85%"></div><div class="linha" style="width: 50%"></div>
+                    </div>
+                    <div class="mini-card">
+                        <span class="prazo prazo-breve"><i class="fa-regular fa-clock"></i>Vence amanhã</span>
+                        <div class="nome">Preparar apresentação</div>
+                        <div class="linha" style="width: 70%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="titulo-coluna"><span class="ponto-status ponto-concluido"></span>Concluído</div>
+                    <div class="mini-card">
+                        <span class="prazo prazo-concluida"><i class="fa-solid fa-circle-check"></i>Concluída</span>
+                        <div class="nome">Configurar backup</div>
+                        <div class="linha" style="width: 80%"></div><div class="linha" style="width: 40%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-            <div class="card shadow p-4">
+    <section class="col-lg-5 offset-lg-1" aria-label="Acesso à conta">
+        <div class="card card-app painel-auth" data-auth="@painelAtivo">
+            <div class="card-body p-4 p-md-5">
 
-                <!-- LOGIN -->
-                <div id="loginBox">
-                    <h4 class="text-center mb-3">Entrar</h4>
+                @if (veioDeRedirecionamento)
+                {
+                    <div class="alert alert-info small py-2" role="status">
+                        <i class="fa-solid fa-lock me-1" aria-hidden="true"></i>Entre na sua conta para continuar.
+                    </div>
+                }
+
+                <div class="nav nav-pills nav-fill gap-2 p-1 bg-body-tertiary rounded-3 mb-4" role="tablist" aria-label="Entrar ou criar conta">
+                    <button type="button" class="nav-link" role="tab" id="aba-login" data-painel="login" aria-controls="painel-login">Entrar</button>
+                    <button type="button" class="nav-link" role="tab" id="aba-cadastro" data-painel="register" aria-controls="painel-cadastro">Criar conta</button>
+                </div>
+
+                <div id="painel-login" role="tabpanel" aria-labelledby="aba-login" data-painel-conteudo="login">
+                    <h2 class="h4 mb-1">Bem-vindo de volta</h2>
+                    <p class="text-body-secondary mb-4">Entre para ver suas atividades.</p>
                     <partial name="_LoginForm" />
                 </div>
 
-                <!-- REGISTER -->
-                <div id="registerBox" style="display:none">
-                    <h4 class="text-center mb-3">Criar conta</h4>
+                <div id="painel-cadastro" role="tabpanel" aria-labelledby="aba-cadastro" data-painel-conteudo="register" hidden>
+                    <h2 class="h4 mb-1">Crie sua conta</h2>
+                    <p class="text-body-secondary mb-4">Leva menos de um minuto.</p>
                     <partial name="_RegisterForm" />
                 </div>
 
-                <!-- FORGOT PASSWORD -->
-                <div id="forgotBox" style="display:none">
-                    <h4 class="text-center mb-3">Recuperar senha</h4>
+                <div id="painel-recuperar" data-painel-conteudo="forgot" hidden>
+                    <h2 class="h4 mb-1">Recuperar senha</h2>
+                    <p class="text-body-secondary mb-4">Informe o email da sua conta e enviaremos um link de redefinição.</p>
                     <partial name="_ForgotPasswordForm" />
                 </div>
-
             </div>
-
         </div>
-    </div>
+    </section>
 </div>
 
-<script>
-    function showRegister() {
-        hideAll();
-        document.getElementById('registerBox').style.display = 'block';
-    }
-
-    function showLogin() {
-        hideAll();
-        document.getElementById('loginBox').style.display = 'block';
-    }
-
-    function showForgot() {
-        hideAll();
-        document.getElementById('forgotBox').style.display = 'block';
-    }
-
-    function hideAll() {
-        document.getElementById('loginBox').style.display = 'none';
-        document.getElementById('registerBox').style.display = 'none';
-        document.getElementById('forgotBox').style.display = 'none';
-    }
-
-    // Reabre o formulário que gerou a resposta (erro de cadastro, mensagem de recuperação de senha).
-    var formularioAtivo = '@(ViewBag.ActiveForm ?? "login")';
-    if (formularioAtivo === 'register') showRegister();
-    else if (formularioAtivo === 'forgot') showForgot();
-</script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

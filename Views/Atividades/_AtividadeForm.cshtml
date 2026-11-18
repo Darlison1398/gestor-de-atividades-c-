@@ -1,0 +1,54 @@
+@model AtividadeFormViewModel
+@*
+    Formulário compartilhado por Criar e Editar. O conteúdo do editor (Quill) é copiado
+    para o campo oculto Descricao no submit (wwwroot/js/atividade-form.js).
+*@
+
+<form method="post" asp-action="@(Model.EhEdicao ? "Editar" : "Criar")" asp-route-id="@(Model.EhEdicao ? Model.Id : null)" id="atividade-form">
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <div class="mb-3">
+        <label asp-for="Titulo" class="form-label fw-medium"></label>
+        <input asp-for="Titulo" class="form-control form-control-lg" placeholder="Ex.: Preparar apresentação do projeto" />
+        <span asp-validation-for="Titulo" class="text-danger small"></span>
+    </div>
+
+    @if (Model.EhEdicao)
+    {
+        <div class="mb-3">
+            <label asp-for="Status" class="form-label fw-medium"></label>
+            <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<StatusAtividade>()"></select>
+            <span asp-validation-for="Status" class="text-danger small"></span>
+        </div>
+    }
+
+    <div class="row g-3 mb-3">
+        <div class="col-sm-6">
+            <label asp-for="DataInicio" class="form-label fw-medium"></label>
+            <input asp-for="DataInicio" class="form-control" type="date" />
+            <span asp-validation-for="DataInicio" class="text-danger small"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="DataConclusao" class="form-label fw-medium"></label>
+            <input asp-for="DataConclusao" class="form-control" type="date" />
+            <span asp-validation-for="DataConclusao" class="text-danger small"></span>
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label for="editor" class="form-label fw-medium" id="rotulo-descricao">Descrição</label>
+        <div id="editor" style="min-height: 200px;" aria-labelledby="rotulo-descricao"></div>
+        @* Valor sanitizado: o editor carrega este HTML como conteúdo inicial. *@
+        <input type="hidden" name="Descricao" id="Descricao" value="@DescricaoSanitizer.Sanitizar(Model.Descricao)" />
+        <span asp-validation-for="Descricao" class="text-danger small"></span>
+    </div>
+
+    <div class="d-flex flex-column-reverse flex-sm-row justify-content-end gap-2">
+        <a class="btn btn-outline-secondary"
+           href="@(Model.EhEdicao ? Url.Action("Detalhes", new { id = Model.Id }) : Url.Action("Index"))">Cancelar</a>
+        <button class="btn btn-primary px-4" type="submit">
+            <i class="fa-solid fa-check me-1" aria-hidden="true"></i>@(Model.EhEdicao ? "Salvar alterações" : "Criar atividade")
+        </button>
+    </div>
+</form>

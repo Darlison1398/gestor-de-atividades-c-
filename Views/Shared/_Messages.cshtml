@@ -1,23 +1,36 @@
-@if (TempData["SuccessMessage"] != null)
-{
-    <div id="success-alert" class="alert alert-success text-center">
-        <strong>@TempData["SuccessMessage"]</strong>
-    </div>
+@*
+    Mensagens de TempData ("SuccessMessage"/"ErrorMessage") exibidas como toasts do Bootstrap.
+    Inicializados em wwwroot/js/site.js. Erros de formulário continuam junto aos campos.
+*@
+@{
+    var sucesso = TempData["SuccessMessage"] as string;
+    var erro = TempData["ErrorMessage"] as string;
 }
 
-@if (TempData["ErrorMessage"] != null)
+@if (sucesso != null || erro != null)
 {
-    <div id="error-alert" class="alert alert-danger text-center">
-        <strong>@TempData["ErrorMessage"]</strong>
+    <div class="toast-container position-fixed end-0 p-3 toasts-app">
+        @if (sucesso != null)
+        {
+            <div class="toast align-items-center text-bg-success border-0" role="status" aria-live="polite" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fa-solid fa-circle-check me-2" aria-hidden="true"></i>@sucesso
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                </div>
+            </div>
+        }
+        @if (erro != null)
+        {
+            <div class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="false">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fa-solid fa-circle-exclamation me-2" aria-hidden="true"></i>@erro
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                </div>
+            </div>
+        }
     </div>
 }
-
-<script>
-    setTimeout(function () {
-        var successAlert = document.getElementById("success-alert");
-        var errorAlert = document.getElementById("error-alert");
-
-        if (successAlert) successAlert.style.display = "none";
-        if (errorAlert) errorAlert.style.display = "none";
-    }, 5000); 
-</script>

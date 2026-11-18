@@ -1,58 +1,30 @@
-<!--form method="post" asp-action="Login" asp-controller="Auth">
-
-    <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input class="form-control" type="email" name="email" required />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Senha</label>
-        <input class="form-control" type="password" name="senha" required />
-    </div>
-
-    <button class="btn btn-primary w-100" type="submit">Entrar</button>
-
-    <div class="text-center mt-3">
-        <a href="#" onclick="showRegister()">Ainda não tem conta? Criar conta</a>
-    </div>
-
-    @if (ViewBag.Error != null)
-    {
-        <p class="text-danger text-center mt-2">@ViewBag.Error</p>
-    }
-</form-->
-
-
-
 @{
     var returnUrl = (string?)ViewBag.ReturnUrl ?? Context.Request.Query["returnUrl"].ToString();
 }
 
 <form method="post" asp-action="Login" asp-controller="Auth">
-    <input type="hidden" name="returnUrl" value="@returnUrl" />
-
-    <div class="mb-3">
-        <label class="form-label">Email</label>
-        <input class="form-control" type="email" name="email" required />
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Senha</label>
-        <input class="form-control" type="password" name="senha" required />
-    </div>
-
-    <button class="btn btn-primary w-100" type="submit">Entrar</button>
-
-    <div class="text-center mt-3">
-        <a href="#" onclick="showForgot()">Esqueceu sua senha?</a>
-    </div>
-
-    <div class="text-center mt-2">
-        <a href="#" onclick="showRegister()">Ainda não tem conta? Criar conta</a>
-    </div>
+    <input type="hidden" name="ReturnUrl" value="@returnUrl" />
 
     @if (ViewBag.Error != null)
     {
-        <p class="text-danger text-center mt-2">@ViewBag.Error</p>
+        <div class="alert alert-danger py-2" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-1" aria-hidden="true"></i>@ViewBag.Error
+        </div>
     }
+
+    <div class="mb-3">
+        <label class="form-label" for="login-email">Email</label>
+        <input class="form-control" id="login-email" type="email" name="Email" autocomplete="email" required />
+    </div>
+
+    <div class="mb-2">
+        <label class="form-label" for="login-senha">Senha</label>
+        <input class="form-control" id="login-senha" type="password" name="Senha" autocomplete="current-password" required />
+    </div>
+
+    <div class="text-end mb-4">
+        <button type="button" class="btn btn-link btn-sm p-0" data-painel="forgot">Esqueceu sua senha?</button>
+    </div>
+
+    <button class="btn btn-primary w-100" type="submit">Entrar</button>
 </form>

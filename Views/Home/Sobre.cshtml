@@ -1,13 +1,30 @@
 @{
-    ViewData["Title"] = "Sobre esse projeto";
+    ViewData["Title"] = "Sobre o projeto";
 }
 
-<div class="container mt-3">
-    <p> 
-        Essa aplicação serve para ajudar os usuário com pequenas atividades do dia a dia. Nele, o usuário pode criar e acompanhar
-        suas atividades <br>
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card card-app">
+            <div class="card-body p-4 p-md-5">
+                <h1 class="h3 fw-bold mb-3">Sobre o projeto</h1>
+                <p>
+                    O GestorAtividades ajuda as pessoas a organizar pequenas atividades do dia a dia: cada atividade tem
+                    prazo previsto, descrição e um status que acompanha o andamento até a conclusão.
+                </p>
+                <p class="mb-4">
+                    O projeto faz parte do meu portfólio pessoal. Foi desenvolvido em C# com ASP.NET Core MVC, usa o banco
+                    de dados PostgreSQL e está hospedado em uma VPS na Hostinger.
+                </p>
 
-        Ela faz parte do meu portfólio pessoal e foi desenvolvida em C# e .Net Core, e usa o banco de dados PostgreSQL. Cosntrui ela 
-        usando uma arquitetura MVC e está hospedada em uma VPS na Hostinguer.
-    </p>
+                <h2 class="h6 text-body-secondary text-uppercase small fw-semibold">Tecnologias</h2>
+                <ul class="list-inline mb-0">
+                    <li class="list-inline-item"><span class="badge text-bg-secondary">C#</span></li>
+                    <li class="list-inline-item"><span class="badge text-bg-secondary">ASP.NET Core MVC</span></li>
+                    <li class="list-inline-item"><span class="badge text-bg-secondary">Entity Framework Core</span></li>
+                    <li class="list-inline-item"><span class="badge text-bg-secondary">PostgreSQL</span></li>
+                    <li class="list-inline-item"><span class="badge text-bg-secondary">Bootstrap</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
